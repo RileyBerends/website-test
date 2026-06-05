@@ -11,6 +11,7 @@
       font-family: Arial, sans-serif;
       background: #f5f7fb;
       color: #222;
+      overflow-x: hidden;
     }
 
     /* LAADSCHERM */
@@ -117,6 +118,72 @@
       padding: 30px;
       color: #666;
     }
+
+    /* POEP CLICKER */
+    #poop {
+      position: fixed;
+      left: 50px;
+      top: 50px;
+      font-size: 48px;
+      cursor: pointer;
+      z-index: 5000;
+      display: none;
+      user-select: none;
+      transition:
+        left 1.8s ease-in-out,
+        top 1.8s ease-in-out,
+        transform 0.15s ease;
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.25));
+    }
+
+    #poop:hover {
+      transform: scale(1.2) rotate(10deg);
+    }
+
+    #poop:active {
+      transform: scale(0.9) rotate(-10deg);
+    }
+
+    #poop-counter {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #111827;
+      color: white;
+      padding: 16px 22px;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 5001;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    #poop-counter span {
+      color: #facc15;
+    }
+
+    .plus-one {
+      position: fixed;
+      font-size: 24px;
+      font-weight: bold;
+      color: #7c3aed;
+      z-index: 6000;
+      pointer-events: none;
+      animation: floatUp 0.8s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-50px) scale(1.5);
+      }
+    }
   </style>
 </head>
 
@@ -135,6 +202,13 @@
       <div id="percentage">0%</div>
     </div>
   </div>
+
+  <!-- Poep clicker -->
+  <div id="poop-counter">
+    💩 Poepjes: <span id="poop-count">0</span>
+  </div>
+
+  <div id="poop">💩</div>
 
   <!-- Hoofdpagina -->
   <div id="main-content">
@@ -173,6 +247,12 @@
     const loader = document.getElementById("loader");
     const mainContent = document.getElementById("main-content");
 
+    const poop = document.getElementById("poop");
+    const poopCounter = document.getElementById("poop-counter");
+    const poopCountText = document.getElementById("poop-count");
+
+    let poopCount = 0;
+
     const loading = setInterval(() => {
       percentage++;
 
@@ -191,9 +271,56 @@
         setTimeout(() => {
           loader.classList.add("loader-hidden");
           mainContent.style.display = "block";
+
+          // Poepicoontje verschijnt pas na het laadscherm
+          poop.style.display = "block";
+          movePoop();
+
+          // Daarna blijft hij rondvliegen
+          setInterval(movePoop, 1800);
+
         }, 600);
       }
     }, 35);
+
+    function movePoop() {
+      const poopSize = 70;
+
+      const maxX = window.innerWidth - poopSize;
+      const maxY = window.innerHeight - poopSize;
+
+      const randomX = Math.floor(Math.random() * maxX);
+      const randomY = Math.floor(Math.random() * maxY);
+
+      poop.style.left = randomX + "px";
+      poop.style.top = randomY + "px";
+    }
+
+    poop.addEventListener("click", () => {
+      poopCount++;
+      poopCountText.textContent = poopCount;
+
+      // Counter verschijnt na eerste klik
+      poopCounter.style.display = "block";
+
+      // +1 animatie maken
+      const plusOne = document.createElement("div");
+      plusOne.className = "plus-one";
+      plusOne.textContent = "+1 💩";
+
+      const poopRect = poop.getBoundingClientRect();
+      plusOne.style.left = poopRect.left + 20 + "px";
+      plusOne.style.top = poopRect.top + "px";
+
+      document.body.appendChild(plusOne);
+
+      setTimeout(() => {
+        plusOne.remove();
+      }, 800);
+
+      // Na klikken vliegt hij meteen ergens anders heen
+      movePoop();
+    });
   </script>
 
 </body>
