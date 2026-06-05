@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PixelsWaYs</title>
+  <title>Riley Berends</title>
 
   <style>
     body {
@@ -126,7 +126,7 @@
   <div id="loader">
     <div class="loader-box">
       <h1>PixelsWaYs</h1>
-      <p>Website wordt geladen... misschien iets te ver.</p>
+      <p>Website wordt geladen...</p>
 
       <div class="bar-background">
         <div class="bar-fill" id="bar"></div>
@@ -184,10 +184,6 @@
         Daarom gebruiken we percentage als breedte.
       */
       bar.style.width = percentage + "%";
-
-      if (percentage === 100) {
-        percentageText.textContent = "100%... wacht, hij gaat door?";
-      }
 
       if (percentage >= 169) {
         clearInterval(loading);
