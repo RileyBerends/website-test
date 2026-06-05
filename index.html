@@ -185,7 +185,25 @@
       color: #6b7280;
       margin-top: 6px;
     }
+    
+.small-menu {
+  margin-top: 18px;
+}
 
+.small-menu a {
+  display: inline-block;
+  color: #cbd5e1;
+  font-size: 13px;
+  text-decoration: none;
+  opacity: 0.65;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.small-menu a:hover {
+  opacity: 1;
+  color: #facc15;
+  text-decoration: underline;
+}
     /* FOOTER */
     footer {
       margin-top: 70px;
@@ -291,11 +309,6 @@
           Niet klikken
           <span>Deze knop is absoluut niet verdacht.</span>
         </a>
-        
-        <a href="klaagmuur.html">
-          Klaagmuur
-          <span>Laat je klacht achter.</span>
-        </a>
       </div>
 
       <footer>
@@ -305,6 +318,10 @@
     </div>
   </div>
 
+  <div class="small-menu">
+  <a href="klaagmuur.html">klacht indienen?</a>
+   </div>
+  
   <script>
     /* LAADSCHERM */
     let percentage = 0;
