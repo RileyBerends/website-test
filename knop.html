@@ -77,116 +77,59 @@
       transform: scale(1.05);
     }
 
-    /* DE GROTE RODE KNOP */
-    .button-area {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-
+    /* DE KNOP */
     #useless-button {
-      position: relative;
-      width: 260px;
-      height: 260px;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
+      background: #ef4444;
       color: white;
+      border: none;
+      padding: 28px 42px;
+      border-radius: 22px;
       font-size: 28px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      line-height: 1.1;
-      text-shadow: 0 3px 5px rgba(0,0,0,0.4);
-      background:
-        radial-gradient(circle at 35% 24%, #ffb3b3 0%, #ff3b3b 22%, #dc2626 55%, #7f1d1d 100%);
-      box-shadow:
-        0 18px 0 #6b7280,
-        0 29px 0 #1f2937,
-        0 38px 45px rgba(0,0,0,0.45),
-        inset 0 14px 22px rgba(255,255,255,0.45),
-        inset 0 -20px 28px rgba(80,0,0,0.55);
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 16px 38px rgba(0,0,0,0.35);
       transition:
-        transform 0.12s ease,
-        box-shadow 0.12s ease,
-        filter 0.2s ease;
-    }
-
-    #useless-button::before {
-      content: "";
-      position: absolute;
-      inset: -24px;
-      border-radius: 50%;
-      z-index: -1;
-      background:
-        radial-gradient(circle at 50% 30%, #ffffff 0%, #d1d5db 34%, #6b7280 62%, #1f2937 100%);
-      box-shadow:
-        0 18px 30px rgba(0,0,0,0.38),
-        inset 0 9px 14px rgba(255,255,255,0.8),
-        inset 0 -14px 22px rgba(0,0,0,0.45);
-    }
-
-    #useless-button::after {
-      content: "";
-      position: absolute;
-      top: 34px;
-      left: 50px;
-      width: 130px;
-      height: 55px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.30);
-      filter: blur(2px);
-      transform: rotate(-8deg);
-      pointer-events: none;
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease;
     }
 
     #useless-button:hover {
-      transform: translateY(-5px) scale(1.03);
-      filter: brightness(1.08);
+      transform: scale(1.05);
+      background: #dc2626;
     }
 
     #useless-button:active {
-      transform: translateY(18px) scale(0.96);
-      box-shadow:
-        0 5px 0 #6b7280,
-        0 11px 0 #1f2937,
-        0 18px 24px rgba(0,0,0,0.45),
-        inset 0 8px 14px rgba(255,255,255,0.28),
-        inset 0 -8px 18px rgba(80,0,0,0.58);
+      transform: scale(0.92) rotate(-2deg);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
     }
 
     .button-jump {
-      animation: buttonPress 0.45s ease;
+      animation: buttonJump 0.35s ease;
     }
 
-    @keyframes buttonPress {
+    @keyframes buttonJump {
       0% {
-        transform: translateY(0) scale(1);
+        transform: scale(1) rotate(0deg);
       }
 
       30% {
-        transform: translateY(22px) scale(0.94);
+        transform: scale(0.9) rotate(-4deg);
       }
 
-      55% {
-        transform: translateY(-8px) scale(1.04);
-      }
-
-      75% {
-        transform: translateY(4px) scale(0.99);
+      60% {
+        transform: scale(1.12) rotate(4deg);
       }
 
       100% {
-        transform: translateY(0) scale(1);
+        transform: scale(1) rotate(0deg);
       }
     }
 
     /* TEKST NA KLIK */
     #button-message {
-      min-height: 70px;
-      margin-top: 42px;
+      min-height: 40px;
+      margin-top: 28px;
       font-size: 22px;
       font-weight: bold;
       color: #facc15;
@@ -227,31 +170,17 @@
       }
 
       #useless-button {
-        width: 210px;
-        height: 210px;
+        width: 100%;
         font-size: 23px;
-      }
-
-      #useless-button::before {
-        inset: -18px;
-      }
-
-      #useless-button::after {
-        top: 28px;
-        left: 38px;
-        width: 110px;
-        height: 45px;
+        padding: 24px 20px;
       }
 
       #button-message {
         font-size: 19px;
-        min-height: 80px;
-        margin-top: 36px;
       }
 
       .container {
-        padding-top: 80px;
-        padding-bottom: 90px;
+        padding-bottom: 80px;
       }
     }
   </style>
@@ -271,9 +200,7 @@
     <h1>Belangrijke informatie</h1>
     <p>Druk op de knop om verder te gaan.</p>
 
-    <div class="button-area">
-      <button id="useless-button">DRUK<br>HIER</button>
-    </div>
+    <button id="useless-button">DRUK HIER</button>
 
     <div id="button-message"></div>
   </div>
@@ -284,279 +211,279 @@
     const buttonMessage = document.getElementById("button-message");
 
     const messages = [
-      "Bedankt. Er is niks gebeurd.",
-      "Deze klik is geregistreerd door helemaal niemand.",
-      "Je hebt zojuist een knop ingedrukt. Knap hoor.",
-      "Belangrijke informatie wordt nog steeds niet geladen.",
-      "Waarom klik je eigenlijk?",
-      "Dit was technisch gezien interactie.",
-      "Je bent nu 1 klik verder in het leven.",
-      "Systeemmelding: nutteloosheid succesvol uitgevoerd.",
-      "Ik hoop dat dit was wat je zocht.",
-      "Nog een keer dan?",
-      "Deze knop heeft meer aandacht gekregen dan mijn planning.",
-      "Gefeliciteerd. Je hebt rood aangeraakt.",
-      "Er gebeurt écht niks. Dat is juist het punt.",
-      "Klik bevestigd. Resultaat: teleurstelling.",
-      "Deze knop doet alsof hij belangrijk is.",
-      "Je internet werkt. Helaas.",
-      "De knop voelt zich gewaardeerd.",
-      "Dit had ook een e-mail kunnen zijn.",
-      "Er wordt nu intern overlegd. Door niemand.",
-      "Je klik is doorgestuurd naar de afdeling onzin.",
-      "Fout 200: alles werkt, maar waarom?",
-      "Je hebt de website een klein duwtje gegeven.",
-      "De knop zegt bedankt. Denk ik.",
-      "Er is precies nul vooruitgang geboekt.",
-      "Je hebt niks opgelost, maar wel meegedaan.",
-      "Dit moment komt nooit meer terug.",
-      "De server zuchtte even.",
-      "Je klik is met matige interesse ontvangen.",
-      "Deze actie had geen gevolgen. Gelukkig.",
-      "Er wordt een rapport gemaakt. Grapje.",
-      "Je bent nu officieel onderdeel van het probleem.",
-      "De knop is onder de indruk van je doorzettingsvermogen.",
-      "Nog steeds geen belangrijke informatie gevonden.",
-      "Dit is waarom we geen mooie dingen kunnen hebben.",
-      "Je hebt de rode knop overleefd.",
-      "Waarschuwing: nog een klik kan leiden tot nog een tekst.",
-      "Er is iets gebeurd, maar niet hier.",
-      "Deze website neemt jou nu minder serieus.",
-      "Klikken is ook een hobby.",
-      "Je hebt de knop wakker gemaakt.",
-      "De knop gaat straks een klacht indienen.",
-      "Resultaat: niets. Maar dan met animatie.",
-      "Je bent gevaarlijk dicht bij productiviteit.",
-      "Deze knop is net zo nuttig als een paraplu onder water.",
-      "Je klik is opgeslagen in mijn denkbeeldige administratie.",
-      "De knop wil graag met rust gelaten worden.",
-      "Onverwachte fout: gebruiker blijft klikken.",
-      "Je bent nu 3% interessanter geworden.",
-      "Er wordt gezocht naar betekenis... geen resultaat.",
-      "De knop twijfelt aan zijn bestaan.",
-      "Je hebt een digitaal object aangeraakt. Modern hoor.",
-      "Als dit je plan was, ging het perfect.",
-      "De website doet alsof dit nodig was.",
-      "Dit is geen bug, dit is persoonlijkheid.",
-      "Je klik heeft precies de sfeer verbeterd.",
-      "De knop heeft geen idee wat hij doet.",
-      "Bezig met laden van belangrijkheid... mislukt.",
-      "Deze informatie is zo belangrijk dat hij onzichtbaar is.",
-      "Je hebt op de knop gedrukt. Dat mag.",
-      "Kijk mam, interactie.",
-      "De knop is rood omdat hij zich schaamt.",
-      "Je verwachtte iets. Dat was je eerste fout.",
-      "Er is een kans van 0% dat dit nuttig wordt.",
-      "De knop heeft pauze nodig.",
-      "Je klik is succesvol genegeerd.",
-      "Dit is digitale bezigheidstherapie.",
-      "De knop heeft zojuist promotie gemaakt naar nutteloos.",
-      "Je bent niet verdwaald. Je bent precies waar de onzin is.",
-      "De website waardeert je gebrek aan haast.",
-      "Er is een klein beetje niks toegevoegd.",
-      "De knop heeft je klik ontvangen en direct vergeten.",
-      "Je hebt de illusie van controle ervaren.",
-      "Nog één klik en er gebeurt waarschijnlijk weer niks.",
-      "Je bent nu de eigenaar van deze teleurstelling.",
-      "Dit is premium onzin.",
-      "De knop doet zijn best. Dat is het probleem.",
-      "Er wordt nu niks berekend.",
-      "De knop is even emotioneel.",
-      "Jouw klik maakt geen verschil. Mooi toch?",
-      "Soms is niks ook iets. Maar dit niet.",
-      "Deze knop is een sociaal experiment.",
-      "Je bent nu verder van je doel dan net.",
-      "Dank voor je bijdrage aan de leegte.",
-      "De knop heeft besloten neutraal te blijven.",
-      "Je klik is aangekomen in niemandsland.",
-      "Dit is waarom de timer blijft oplopen.",
-      "De knop is niet boos, alleen teleurgesteld.",
-      "Je had ook water kunnen drinken.",
-      "Er is een vergadering gepland over deze klik.",
-      "De vergadering is geannuleerd wegens gebrek aan nut.",
-      "Je klik heeft de economie niet geholpen.",
-      "Deze knop is gemaakt met twijfel.",
-      "Het systeem zegt: ja hoor.",
-      "Je hebt een keuze gemaakt. Niet per se een goede.",
-      "De knop doet nu alsof hij druk is.",
-      "Er is geen weg terug. Behalve de terugknop.",
-      "Je zit nu diep in de knop-lore.",
-      "Deze klik wordt later belangrijk. Misschien. Nee.",
-      "Je hebt een rood probleem aangeraakt.",
-      "De knop heeft je gezien.",
-      "Je bent officieel een knopdrukker.",
-      "Het internet is trots op je. Een beetje.",
-      "De knop is functioneel nutteloos.",
-      "Er is geen prijs. Alleen dit bericht.",
-      "De knop fluistert: waarom?",
-      "Je hebt het mysterie niet opgelost.",
-      "Dit was de verkeerde juiste keuze.",
-      "De knop is nu warmer door je aandacht.",
-      "Je hebt niks gewonnen, maar ook niks verloren. Behalve tijd.",
-      "De knop vindt dit ongemakkelijk worden.",
-      "Je klik is verwerkt door kabouters.",
-      "Kabouters zeggen: laat ons erbuiten.",
-      "Deze pagina had budget voor één knop.",
-      "De knop is de hoofdpersoon nu.",
-      "Je bent alweer aan het klikken hè.",
-      "Dit is niet waar je ouders op hoopten.",
-      "De knop heeft geen toekomstplan.",
-      "Je bent niet dom. Alleen nieuwsgierig op een risicovolle manier.",
-      "De website heeft nu meer data. Namelijk: jij klikt.",
-      "De knop voelt zich gebruikt.",
-      "Je hebt net een seconde verspild. De timer zag het.",
-      "Deze knop is rood vanwege de schaamte.",
-      "Niet alles hoeft zin te hebben. Kijk maar.",
-      "Je bent onderdeel van de gebruikerservaring. Sorry.",
-      "De knop heeft een burn-out aangevraagd.",
-      "Er is geen geheime functie. Of toch? Nee.",
-      "Je klik is doorgestuurd naar de prullenbak.",
-      "De prullenbak heeft geweigerd.",
-      "Deze knop is eigenlijk decoratie met praatjes.",
-      "Gefeliciteerd met je deelname.",
-      "Je bent nu tijdelijk knopmanager.",
-      "Knopmanager is geen betaalde functie.",
-      "De knop zegt: mooi wark.",
-      "Eerst koffie, dan pas functionaliteit.",
-      "Er wordt niks geladen, maar wel met overtuiging.",
-      "Je hebt de website moreel ondersteund.",
-      "De knop is blij dat iemand hem nodig heeft.",
-      "Dit is de digitale variant van tegen een paal lopen.",
-      "Deze klik gaat de geschiedenis niet halen.",
-      "Je hebt geen fout gemaakt. De knop wel.",
-      "Dit bericht verdwijnt zo. Net als je tijd.",
-      "De knop doet net alsof hij professioneel is.",
-      "Je bent op zoek naar betekenis op de verkeerde pagina.",
-      "De knop is kort beschikbaar voor interviews.",
-      "Je hebt een knop gevonden. Gefeliciteerd Sherlock.",
-      "Je klik is belangrijk voor ons. Niet echt.",
-      "Er is een storing in de nuttigheid.",
-      "Alles werkt naar behoren. Helaas.",
-      "De knop heeft jouw vertrouwen niet verdiend.",
-      "Je kunt stoppen wanneer je wilt. Zeggen ze.",
-      "Deze knop is een val, maar wel een eerlijke.",
-      "De tekst verdwijnt straks. De schaamte blijft.",
-      "Je hebt officieel teveel vertrouwen in rode knoppen.",
-      "De knop respecteert je koppigheid.",
-      "Niks gevonden. Probeer vooral opnieuw, dat helpt vast.",
-      "Je bent nu één klik dichter bij niks.",
-      "De knop heeft geen spijt.",
-      "Deze website is nog in ontwikkeling. Jij ook.",
-      "Klikken op rood blijft een keuze.",
-      "De knop heeft geen handleiding. Dat merk je.",
-      "Hier had belangrijke informatie kunnen staan.",
-      "Maar nee.",
-      "Dit is het.",
-      "Meer hadden we niet.",
-      "Toch klik je door.",
-      "Indrukwekkend.",
-      "Zorgwekkend, maar indrukwekkend.",
-      "Je klikniveau is zorgwekkend hoog.",
-      "Zelfs de knop denkt: rustig aan, maat.",
-      "Je hebt de concentratie van een goudvis met wifi.",
-      "Deze knop is slimmer dan hij eruitziet. Jij helaas ook.",
-      "Je bent niet de doelgroep, je bent het experiment.",
-      "Je klikt alsof je betaald krijgt. Dat krijg je niet.",
-      "Je bent officieel te makkelijk te vermaken.",
-      "Zelfs een baksteen zou nu vragen wat je aan het doen bent.",
-      "De knop heeft zojuist respect verloren.",
-      "Je bent geen probleemoplosser, je bent een probleemverlenger.",
-      "Dit is niet dom. Dit is professioneel tijdverlies.",
-      "Je hebt de energie van iemand die een handleiding overslaat.",
-      "Je bent precies waarom er waarschuwingslabels bestaan.",
-      "De knop heeft je IQ niet gemeten. Uit beleefdheid.",
-      "Je bent niet verdwaald, je bent gewoon verkeerd bezig.",
-      "Zelfs Internet Explorer zou sneller doorhebben dat dit niks doet.",
-      "Je klikgedrag is voer voor psychologen.",
-      "Je bent de reden dat rode knoppen achter glas horen.",
-      "Je bent niet koppig, je bent klikmatig beperkt.",
-      "De knop wil graag afstand nemen van deze relatie.",
-      "Je verwacht resultaat van een nutteloze knop. Dapper.",
-      "Er is hoop. Niet hier, maar ergens.",
-      "Je bent zo ver gekomen en toch nergens aangekomen.",
-      "Dit is waarom de website geen verantwoordelijkheid neemt.",
-      "Je hebt de knop aangeraakt alsof dat verstandig was.",
-      "De knop is niet boos, maar hij praat straks wel over je.",
-      "Je bent een lopende gebruikerstest zonder toestemming.",
-      "Zelfs de timer schaamt zich voor jou.",
-      "Je bent niet slecht bezig. Je bent bijzonder bezig.",
-      "Deze klik was niet je beste moment.",
-      "Je hebt de uitstraling van iemand die akkoord klikt zonder te lezen.",
-      "De knop vraagt zich af of alles thuis goed gaat.",
-      "Je bent officieel minder nuttig dan deze knop. En dat zegt wat.",
-      "Dit is digitale zelfvernedering met animatie.",
-      "Je bent niet dom, je bent interactief ongelukkig.",
-      "De knop is rood omdat jij hem stress geeft.",
-      "Je hebt een gave voor verkeerde keuzes.",
-      "Zelfs de 404-pagina heeft meer richting dan jij nu.",
-      "Je bent op dit moment content voor mijn website.",
-      "De knop heeft je opgeslagen onder: apart geval.",
-      "Je bent een beta-tester van teleurstelling.",
-      "Er is geen diploma voor dit gedrag. Gelukkig.",
-      "Je klik is ontvangen en beoordeeld als twijfelachtig.",
-      "De knop vindt jou intens aanwezig.",
-      "Je bent niet snel afgeleid. Je bent gewoon hier beland.",
-      "Deze pagina had één taak: jou bezighouden. Gelukt, helaas.",
-      "Je bent het menselijke equivalent van 'later herinneren'.",
-      "De knop heeft zichzelf net lager gewaardeerd door jouw klik.",
-      "Je bent zo nieuwsgierig dat het bijna gevaarlijk wordt.",
-      "Je bent niet de held van dit verhaal. De knop ook niet.",
-      "Zelfs de muis/touchscreen wil pauze.",
-      "Je hebt een indrukwekkend gebrek aan urgentie.",
-      "Dit is geen interactie meer, dit is een relatieprobleem.",
-      "De knop heeft jouw klik persoonlijk opgevat.",
-      "Je bent precies het soort persoon dat op 'niet klikken' klikt.",
-      "De knop is nu emotioneel unavailable.",
-      "Je hebt vandaag iets gedaan. Helaas was het dit.",
-      "Je bent een wandelende advertentie voor schermtijdlimieten.",
-      "Deze knop is nutteloos, maar jij maakt het erger.",
-      "Je hebt het doorzettingsvermogen van iemand zonder planning.",
-      "De knop wil graag anoniem blijven.",
-      "Je bent niet bezig met ontdekken, je bent bezig met verliezen.",
-      "De website heeft je beoordeeld: vermakelijk, maar verdacht.",
-      "Je klik is naar HR gestuurd.",
-      "HR wil hier niks mee te maken hebben.",
-      "Je bent niet raar. Je bent website-compatibel.",
-      "De knop noemt dit geen klikken meer, maar lastigvallen.",
-      "Je bent nu officieel onderdeel van de folklore.",
-      "De knop heeft zijn advocaat gebeld.",
-      "Advocaat zegt: stop met klikken.",
-      "Je bent bijzonder. Niet altijd positief.",
-      "De knop vindt dat je even naar buiten moet.",
-      "Dit is niet gezond, maar wel meetbaar.",
-      "Je bent het bewijs dat interactie niet altijd vooruitgang is.",
-      "Je klik had ambitie, maar geen inhoud.",
-      "De knop is teleurgesteld in je keuzes, niet in jou. Misschien.",
-      "Je bent geen gebruiker meer, je bent een waarschuwing.",
-      "Deze pagina is een spiegel. En hij liegt niet.",
-      "Je bent zo diep gezonken dat zelfs de footer je niet meer ziet.",
-      "De knop zegt: doe normaal. Dan doe je al gek genoeg.",
-      "Je bent waarschijnlijk aardig, maar dit helpt je zaak niet.",
-      "De knop heeft een mute-knop voor jou gewenst.",
-      "Je bent de reden dat deze tekst bestaat. Denk daar eens over na.",
-      "Dit is precies waarom ik geen echte functies bouw.",
-      "Je bent niet verloren. Je hebt alleen slechte navigatie.",
-      "De knop waardeert je aandacht, maar niet je beslissingen.",
-      "Je klik was moedig. Onnodig, maar moedig.",
-      "Je hebt digitaal tegen een deur geduwd waar 'trekken' op stond.",
-      "De knop heeft je toegevoegd aan zijn zwarte lijst.",
-      "Je bent niet het probleem. Oké, misschien een beetje.",
-      "Deze klik had voorkomen kunnen worden.",
-      "Je bent nu zo lang bezig dat de knop huur gaat vragen.",
-      "De knop is inmiddels emotioneel gehecht. Dat is jouw schuld.",
-      "Je hebt exact nul dingen verbeterd.",
-      "Deze pagina is dom, maar jij blijft terugkomen.",
-      "Je bent officieel te vermaken met weinig middelen.",
-      "De knop noemt dit geen bezoek meer, maar verblijf.",
-      "Je bent een wandelende Ctrl+Z.",
-      "Deze knop is jouw persoonlijke tijdlek.",
-      "Je hebt de verkeerde kant van nieuwsgierigheid gekozen.",
-      "De knop zou je blokkeren, maar hij kan niet.",
-      "Je bent precies waarom pop-ups bestaan.",
-      "Zelfs spam-mails hebben meer doelgerichtheid.",
-      "Je klik heeft minder impact dan een zucht in de wind.",
-      "De knop is niet boos. De knop is moe.",
-      "Je bent geweldig in nutteloze dingen. Dat is ook talent."
+  "Bedankt. Er is niks gebeurd.",
+  "Deze klik is geregistreerd door helemaal niemand.",
+  "Je hebt zojuist een knop ingedrukt. Knap hoor.",
+  "Belangrijke informatie wordt nog steeds niet geladen.",
+  "Waarom klik je eigenlijk?",
+  "Dit was technisch gezien interactie.",
+  "Je bent nu 1 klik verder in het leven.",
+  "Systeemmelding: nutteloosheid succesvol uitgevoerd.",
+  "Ik hoop dat dit was wat je zocht.",
+  "Nog een keer dan?",
+  "Deze knop heeft meer aandacht gekregen dan mijn planning.",
+  "Gefeliciteerd. Je hebt rood aangeraakt.",
+  "Er gebeurt écht niks. Dat is juist het punt.",
+  "Klik bevestigd. Resultaat: teleurstelling.",
+  "Deze knop doet alsof hij belangrijk is.",
+  "Je internet werkt. Helaas.",
+  "De knop voelt zich gewaardeerd.",
+  "Dit had ook een e-mail kunnen zijn.",
+  "Er wordt nu intern overlegd. Door niemand.",
+  "Je klik is doorgestuurd naar de afdeling onzin.",
+  "Fout 200: alles werkt, maar waarom?",
+  "Je hebt de website een klein duwtje gegeven.",
+  "De knop zegt bedankt. Denk ik.",
+  "Er is precies nul vooruitgang geboekt.",
+  "Je hebt niks opgelost, maar wel meegedaan.",
+  "Dit moment komt nooit meer terug.",
+  "De server zuchtte even.",
+  "Je klik is met matige interesse ontvangen.",
+  "Deze actie had geen gevolgen. Gelukkig.",
+  "Er wordt een rapport gemaakt. Grapje.",
+  "Je bent nu officieel onderdeel van het probleem.",
+  "De knop is onder de indruk van je doorzettingsvermogen.",
+  "Nog steeds geen belangrijke informatie gevonden.",
+  "Dit is waarom we geen mooie dingen kunnen hebben.",
+  "Je hebt de rode knop overleefd.",
+  "Waarschuwing: nog een klik kan leiden tot nog een tekst.",
+  "Er is iets gebeurd, maar niet hier.",
+  "Deze website neemt jou nu minder serieus.",
+  "Klikken is ook een hobby.",
+  "Je hebt de knop wakker gemaakt.",
+  "De knop gaat straks een klacht indienen.",
+  "Resultaat: niets. Maar dan met animatie.",
+  "Je bent gevaarlijk dicht bij productiviteit.",
+  "Deze knop is net zo nuttig als een paraplu onder water.",
+  "Je klik is opgeslagen in mijn denkbeeldige administratie.",
+  "De knop wil graag met rust gelaten worden.",
+  "Onverwachte fout: gebruiker blijft klikken.",
+  "Je bent nu 3% interessanter geworden.",
+  "Er wordt gezocht naar betekenis... geen resultaat.",
+  "De knop twijfelt aan zijn bestaan.",
+  "Je hebt een digitaal object aangeraakt. Modern hoor.",
+  "Als dit je plan was, ging het perfect.",
+  "De website doet alsof dit nodig was.",
+  "Dit is geen bug, dit is persoonlijkheid.",
+  "Je klik heeft precies de sfeer verbeterd.",
+  "De knop heeft geen idee wat hij doet.",
+  "Bezig met laden van belangrijkheid... mislukt.",
+  "Deze informatie is zo belangrijk dat hij onzichtbaar is.",
+  "Je hebt op de knop gedrukt. Dat mag.",
+  "Kijk mam, interactie.",
+  "De knop is rood omdat hij zich schaamt.",
+  "Je verwachtte iets. Dat was je eerste fout.",
+  "Er is een kans van 0% dat dit nuttig wordt.",
+  "De knop heeft pauze nodig.",
+  "Je klik is succesvol genegeerd.",
+  "Dit is digitale bezigheidstherapie.",
+  "De knop heeft zojuist promotie gemaakt naar nutteloos.",
+  "Je bent niet verdwaald. Je bent precies waar de onzin is.",
+  "De website waardeert je gebrek aan haast.",
+  "Er is een klein beetje niks toegevoegd.",
+  "De knop heeft je klik ontvangen en direct vergeten.",
+  "Je hebt de illusie van controle ervaren.",
+  "Nog één klik en er gebeurt waarschijnlijk weer niks.",
+  "Je bent nu de eigenaar van deze teleurstelling.",
+  "Dit is premium onzin.",
+  "De knop doet zijn best. Dat is het probleem.",
+  "Er wordt nu niks berekend.",
+  "De knop is even emotioneel.",
+  "Jouw klik maakt geen verschil. Mooi toch?",
+  "Soms is niks ook iets. Maar dit niet.",
+  "Deze knop is een sociaal experiment.",
+  "Je bent nu verder van je doel dan net.",
+  "Dank voor je bijdrage aan de leegte.",
+  "De knop heeft besloten neutraal te blijven.",
+  "Je klik is aangekomen in niemandsland.",
+  "Dit is waarom de timer blijft oplopen.",
+  "De knop is niet boos, alleen teleurgesteld.",
+  "Je had ook water kunnen drinken.",
+  "Er is een vergadering gepland over deze klik.",
+  "De vergadering is geannuleerd wegens gebrek aan nut.",
+  "Je klik heeft de economie niet geholpen.",
+  "Deze knop is gemaakt met twijfel.",
+  "Het systeem zegt: ja hoor.",
+  "Je hebt een keuze gemaakt. Niet per se een goede.",
+  "De knop doet nu alsof hij druk is.",
+  "Er is geen weg terug. Behalve de terugknop.",
+  "Je zit nu diep in de knop-lore.",
+  "Deze klik wordt later belangrijk. Misschien. Nee.",
+  "Je hebt een rood probleem aangeraakt.",
+  "De knop heeft je gezien.",
+  "Je bent officieel een knopdrukker.",
+  "Het internet is trots op je. Een beetje.",
+  "De knop is functioneel nutteloos.",
+  "Er is geen prijs. Alleen dit bericht.",
+  "De knop fluistert: waarom?",
+  "Je hebt het mysterie niet opgelost.",
+  "Dit was de verkeerde juiste keuze.",
+  "De knop is nu warmer door je aandacht.",
+  "Je hebt niks gewonnen, maar ook niks verloren. Behalve tijd.",
+  "De knop vindt dit ongemakkelijk worden.",
+  "Je klik is verwerkt door kabouters.",
+  "Kabouters zeggen: laat ons erbuiten.",
+  "Deze pagina had budget voor één knop.",
+  "De knop is de hoofdpersoon nu.",
+  "Je bent alweer aan het klikken hè.",
+  "Dit is niet waar je ouders op hoopten.",
+  "De knop heeft geen toekomstplan.",
+  "Je bent niet dom. Alleen nieuwsgierig op een risicovolle manier.",
+  "De website heeft nu meer data. Namelijk: jij klikt.",
+  "De knop voelt zich gebruikt.",
+  "Je hebt net een seconde verspild. De timer zag het.",
+  "Deze knop is rood vanwege de schaamte.",
+  "Niet alles hoeft zin te hebben. Kijk maar.",
+  "Je bent onderdeel van de gebruikerservaring. Sorry.",
+  "De knop heeft een burn-out aangevraagd.",
+  "Er is geen geheime functie. Of toch? Nee.",
+  "Je klik is doorgestuurd naar de prullenbak.",
+  "De prullenbak heeft geweigerd.",
+  "Deze knop is eigenlijk decoratie met praatjes.",
+  "Gefeliciteerd met je deelname.",
+  "Je bent nu tijdelijk knopmanager.",
+  "Knopmanager is geen betaalde functie.",
+  "De knop zegt: mooi wark.",
+  "Eerst koffie, dan pas functionaliteit.",
+  "Er wordt niks geladen, maar wel met overtuiging.",
+  "Je hebt de website moreel ondersteund.",
+  "De knop is blij dat iemand hem nodig heeft.",
+  "Dit is de digitale variant van tegen een paal lopen.",
+  "Deze klik gaat de geschiedenis niet halen.",
+  "Je hebt geen fout gemaakt. De knop wel.",
+  "Dit bericht verdwijnt zo. Net als je tijd.",
+  "De knop doet net alsof hij professioneel is.",
+  "Je bent op zoek naar betekenis op de verkeerde pagina.",
+  "De knop is kort beschikbaar voor interviews.",
+  "Je hebt een knop gevonden. Gefeliciteerd Sherlock.",
+  "Je klik is belangrijk voor ons. Niet echt.",
+  "Er is een storing in de nuttigheid.",
+  "Alles werkt naar behoren. Helaas.",
+  "De knop heeft jouw vertrouwen niet verdiend.",
+  "Je kunt stoppen wanneer je wilt. Zeggen ze.",
+  "Deze knop is een val, maar wel een eerlijke.",
+  "De tekst verdwijnt straks. De schaamte blijft.",
+  "Je hebt officieel teveel vertrouwen in rode knoppen.",
+  "De knop respecteert je koppigheid.",
+  "Niks gevonden. Probeer vooral opnieuw, dat helpt vast.",
+  "Je bent nu één klik dichter bij niks.",
+  "De knop heeft geen spijt.",
+  "Deze website is nog in ontwikkeling. Jij ook.",
+  "Klikken op rood blijft een keuze.",
+  "De knop heeft geen handleiding. Dat merk je.",
+  "Hier had belangrijke informatie kunnen staan.",
+  "Maar nee.",
+  "Dit is het.",
+  "Meer hadden we niet.",
+  "Toch klik je door.",
+  "Indrukwekkend.",
+  "Zorgwekkend, maar indrukwekkend.",
+  "Je klikniveau is zorgwekkend hoog.",
+  "Zelfs de knop denkt: rustig aan, maat.",
+  "Je hebt de concentratie van een goudvis met wifi.",
+  "Deze knop is slimmer dan hij eruitziet. Jij helaas ook.",
+  "Je bent niet de doelgroep, je bent het experiment.",
+  "Je klikt alsof je betaald krijgt. Dat krijg je niet.",
+  "Je bent officieel te makkelijk te vermaken.",
+  "Zelfs een baksteen zou nu vragen wat je aan het doen bent.",
+  "De knop heeft zojuist respect verloren.",
+  "Je bent geen probleemoplosser, je bent een probleemverlenger.",
+  "Dit is niet dom. Dit is professioneel tijdverlies.",
+  "Je hebt de energie van iemand die een handleiding overslaat.",
+  "Je bent precies waarom er waarschuwingslabels bestaan.",
+  "De knop heeft je IQ niet gemeten. Uit beleefdheid.",
+  "Je bent niet verdwaald, je bent gewoon verkeerd bezig.",
+  "Zelfs Internet Explorer zou sneller doorhebben dat dit niks doet.",
+  "Je klikgedrag is voer voor psychologen.",
+  "Je bent de reden dat rode knoppen achter glas horen.",
+  "Je bent niet koppig, je bent klikmatig beperkt.",
+  "De knop wil graag afstand nemen van deze relatie.",
+  "Je verwacht resultaat van een nutteloze knop. Dapper.",
+  "Er is hoop. Niet hier, maar ergens.",
+  "Je bent zo ver gekomen en toch nergens aangekomen.",
+  "Dit is waarom de website geen verantwoordelijkheid neemt.",
+  "Je hebt de knop aangeraakt alsof dat verstandig was.",
+  "De knop is niet boos, maar hij praat straks wel over je.",
+  "Je bent een lopende gebruikerstest zonder toestemming.",
+  "Zelfs de timer schaamt zich voor jou.",
+  "Je bent niet slecht bezig. Je bent bijzonder bezig.",
+  "Deze klik was niet je beste moment.",
+  "Je hebt de uitstraling van iemand die akkoord klikt zonder te lezen.",
+  "De knop vraagt zich af of alles thuis goed gaat.",
+  "Je bent officieel minder nuttig dan deze knop. En dat zegt wat.",
+  "Dit is digitale zelfvernedering met animatie.",
+  "Je bent niet dom, je bent interactief ongelukkig.",
+  "De knop is rood omdat jij hem stress geeft.",
+  "Je hebt een gave voor verkeerde keuzes.",
+  "Zelfs de 404-pagina heeft meer richting dan jij nu.",
+  "Je bent op dit moment content voor mijn website.",
+  "De knop heeft je opgeslagen onder: apart geval.",
+  "Je bent een beta-tester van teleurstelling.",
+  "Er is geen diploma voor dit gedrag. Gelukkig.",
+  "Je klik is ontvangen en beoordeeld als twijfelachtig.",
+  "De knop vindt jou intens aanwezig.",
+  "Je bent niet snel afgeleid. Je bent gewoon hier beland.",
+  "Deze pagina had één taak: jou bezighouden. Gelukt, helaas.",
+  "Je bent het menselijke equivalent van 'later herinneren'.",
+  "De knop heeft zichzelf net lager gewaardeerd door jouw klik.",
+  "Je bent zo nieuwsgierig dat het bijna gevaarlijk wordt.",
+  "Je bent niet de held van dit verhaal. De knop ook niet.",
+  "Zelfs de muis/touchscreen wil pauze.",
+  "Je hebt een indrukwekkend gebrek aan urgentie.",
+  "Dit is geen interactie meer, dit is een relatieprobleem.",
+  "De knop heeft jouw klik persoonlijk opgevat.",
+  "Je bent precies het soort persoon dat op 'niet klikken' klikt.",
+  "De knop is nu emotioneel unavailable.",
+  "Je hebt vandaag iets gedaan. Helaas was het dit.",
+  "Je bent een wandelende advertentie voor schermtijdlimieten.",
+  "Deze knop is nutteloos, maar jij maakt het erger.",
+  "Je hebt het doorzettingsvermogen van iemand zonder planning.",
+  "De knop wil graag anoniem blijven.",
+  "Je bent niet bezig met ontdekken, je bent bezig met verliezen.",
+  "De website heeft je beoordeeld: vermakelijk, maar verdacht.",
+  "Je klik is naar HR gestuurd.",
+  "HR wil hier niks mee te maken hebben.",
+  "Je bent niet raar. Je bent website-compatibel.",
+  "De knop noemt dit geen klikken meer, maar lastigvallen.",
+  "Je bent nu officieel onderdeel van de folklore.",
+  "De knop heeft zijn advocaat gebeld.",
+  "Advocaat zegt: stop met klikken.",
+  "Je bent bijzonder. Niet altijd positief.",
+  "De knop vindt dat je even naar buiten moet.",
+  "Dit is niet gezond, maar wel meetbaar.",
+  "Je bent het bewijs dat interactie niet altijd vooruitgang is.",
+  "Je klik had ambitie, maar geen inhoud.",
+  "De knop is teleurgesteld in je keuzes, niet in jou. Misschien.",
+  "Je bent geen gebruiker meer, je bent een waarschuwing.",
+  "Deze pagina is een spiegel. En hij liegt niet.",
+  "Je bent zo diep gezonken dat zelfs de footer je niet meer ziet.",
+  "De knop zegt: doe normaal. Dan doe je al gek genoeg.",
+  "Je bent waarschijnlijk aardig, maar dit helpt je zaak niet.",
+  "De knop heeft een mute-knop voor jou gewenst.",
+  "Je bent de reden dat deze tekst bestaat. Denk daar eens over na.",
+  "Dit is precies waarom ik geen echte functies bouw.",
+  "Je bent niet verloren. Je hebt alleen slechte navigatie.",
+  "De knop waardeert je aandacht, maar niet je beslissingen.",
+  "Je klik was moedig. Onnodig, maar moedig.",
+  "Je hebt digitaal tegen een deur geduwd waar 'trekken' op stond.",
+  "De knop heeft je toegevoegd aan zijn zwarte lijst.",
+  "Je bent niet het probleem. Oké, misschien een beetje.",
+  "Deze klik had voorkomen kunnen worden.",
+  "Je bent nu zo lang bezig dat de knop huur gaat vragen.",
+  "De knop is inmiddels emotioneel gehecht. Dat is jouw schuld.",
+  "Je hebt exact nul dingen verbeterd.",
+  "Deze pagina is dom, maar jij blijft terugkomen.",
+  "Je bent officieel te vermaken met weinig middelen.",
+  "De knop noemt dit geen bezoek meer, maar verblijf.",
+  "Je bent een wandelende Ctrl+Z.",
+  "Deze knop is jouw persoonlijke tijdlek.",
+  "Je hebt de verkeerde kant van nieuwsgierigheid gekozen.",
+  "De knop zou je blokkeren, maar hij kan niet.",
+  "Je bent precies waarom pop-ups bestaan.",
+  "Zelfs spam-mails hebben meer doelgerichtheid.",
+  "Je klik heeft minder impact dan een zucht in de wind.",
+  "De knop is niet boos. De knop is moe.",
+  "Je bent geweldig in nutteloze dingen. Dat is ook talent."
     ];
 
     let messageTimeout;
