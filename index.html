@@ -6,6 +6,10 @@
   <title>Riley Berends</title>
 
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -94,6 +98,34 @@
       margin-top: 15px;
     }
 
+    /* MENU */
+    nav {
+      background: white;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 18px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 16px;
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+
+    nav a:hover {
+      background: #2563eb;
+      color: white;
+    }
+
     main {
       max-width: 900px;
       margin: 40px auto;
@@ -106,6 +138,7 @@
       margin-bottom: 25px;
       border-radius: 16px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      scroll-margin-top: 90px;
     }
 
     section h2 {
@@ -143,30 +176,37 @@
       <p>Mijn eigen plek op het internet waar ik dingen doe......</p>
     </header>
 
+    <nav>
+      <a href="#over-mij">Over mij</a>
+      <a href="#ontdekkingen">Mijn ontdekkingen</a>
+      <a href="#projecten">Projecten</a>
+    </nav>
+
     <main>
-      <section>
+      <section id="over-mij">
         <h2>Over mij</h2>
         <p>Hallo! Ik ben Riley, 23 jaar. Meer heb ik momenteel niks te zeggen.</p>
       </section>
 
-      <section>
+      <section id="ontdekkingen">
         <h2>Mijn ontdekkingen</h2>
         <p>Hier plaats ik later dingen die ik leer tijdens het bouwen van websites.</p>
       </section>
 
-      <section>
+      <section id="projecten">
         <h2>Projecten</h2>
         <p>Dit wordt de plek voor mijn experimenten, ideeën en creatieve dingen.</p>
       </section>
     </main>
 
     <footer>
-      <p>© 2026 Riley Berends   ~ Sponsored by: Bier</p>
+      <p>© 2026 Riley Berends ~ Sponsored by: Bier</p>
     </footer>
   </div>
 
   <script>
     let percentage = 0;
+    let pausedAt100 = false;
 
     const bar = document.getElementById("bar");
     const percentageText = document.getElementById("percentage");
@@ -174,15 +214,22 @@
     const mainContent = document.getElementById("main-content");
 
     const loading = setInterval(() => {
+      if (percentage === 100 && pausedAt100 === false) {
+        pausedAt100 = true;
+        percentageText.textContent = "100%... wacht, hij gaat door?";
+
+        setTimeout(() => {
+          percentage++;
+          bar.style.width = percentage + "%";
+          percentageText.textContent = percentage + "%";
+        }, 2000);
+
+        return;
+      }
+
       percentage++;
 
       percentageText.textContent = percentage + "%";
-
-      /*
-        Tot 100% vult de balk normaal.
-        Na 100% gaat de balk expres verder dan zijn vak.
-        Daarom gebruiken we percentage als breedte.
-      */
       bar.style.width = percentage + "%";
 
       if (percentage >= 169) {
