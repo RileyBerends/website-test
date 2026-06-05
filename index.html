@@ -236,26 +236,37 @@
     const loader = document.getElementById("loader");
     const mainContent = document.getElementById("main-content");
 
-    const loading = setInterval(() => {
-      percentage++;
+    const loaderAlreadySeen = sessionStorage.getItem("loaderAlreadySeen");
 
-      percentageText.textContent = percentage + "%";
-      bar.style.width = percentage + "%";
+    if (loaderAlreadySeen === "true") {
+      // Laadscherm overslaan als je terugkomt op de hoofdpagina
+      loader.style.display = "none";
+      mainContent.style.display = "flex";
+    } else {
+      const loading = setInterval(() => {
+        percentage++;
 
-      if (percentage >= 169 && jokeStarted === false) {
-        jokeStarted = true;
-        clearInterval(loading);
+        percentageText.textContent = percentage + "%";
+        bar.style.width = percentage + "%";
 
-        // Hier gebeurt de 169% naar 69 grap
-        percentageText.innerHTML =
-          '<span class="fade-joke">1</span><span class="keep-69">69</span><span class="fade-joke">%</span>';
+        if (percentage >= 169 && jokeStarted === false) {
+          jokeStarted = true;
+          clearInterval(loading);
 
-        setTimeout(() => {
-          loader.classList.add("loader-hidden");
-          mainContent.style.display = "flex";
-        }, 1500);
-      }
-    }, 35);
+          // Onthouden dat het laadscherm al is geweest
+          sessionStorage.setItem("loaderAlreadySeen", "true");
+
+          // Hier gebeurt de 169% naar 69 grap
+          percentageText.innerHTML =
+            '<span class="fade-joke">1</span><span class="keep-69">69</span><span class="fade-joke">%</span>';
+
+          setTimeout(() => {
+            loader.classList.add("loader-hidden");
+            mainContent.style.display = "flex";
+          }, 1500);
+        }
+      }, 35);
+    }
   </script>
 
 </body>
