@@ -184,6 +184,97 @@
         transform: translateY(-50px) scale(1.5);
       }
     }
+
+    /* ACHIEVEMENT */
+    #achievement {
+      position: fixed;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      background: #111827;
+      color: white;
+      padding: 18px 24px;
+      border-radius: 18px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 7000;
+      display: none;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      animation: achievementPop 0.4s ease-out;
+      text-align: center;
+    }
+
+    #achievement span {
+      color: #facc15;
+    }
+
+    #achievement:hover {
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    @keyframes achievementPop {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(30px) scale(0.8);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+      }
+    }
+
+    /* MOBIEL */
+    @media (max-width: 600px) {
+      .loader-box h1 {
+        font-size: 34px;
+      }
+
+      #percentage {
+        font-size: 24px;
+      }
+
+      header {
+        padding: 60px 16px;
+      }
+
+      header h1 {
+        font-size: 36px;
+      }
+
+      header p {
+        font-size: 17px;
+      }
+
+      main {
+        margin: 25px auto;
+        padding: 0 14px;
+      }
+
+      section {
+        padding: 22px;
+      }
+
+      #poop {
+        font-size: 42px;
+      }
+
+      #poop-counter {
+        top: 12px;
+        right: 12px;
+        padding: 12px 16px;
+        font-size: 15px;
+        border-radius: 12px;
+      }
+
+      #achievement {
+        width: calc(100% - 50px);
+        bottom: 20px;
+        font-size: 15px;
+        padding: 16px;
+      }
+    }
   </style>
 </head>
 
@@ -206,6 +297,11 @@
   <!-- Poep clicker -->
   <div id="poop-counter">
     💩 Poepjes: <span id="poop-count">0</span>
+  </div>
+
+  <div id="achievement">
+    🏆 Achievement unlocked<br>
+    <span>Jij hebt echt geen leven......</span>
   </div>
 
   <div id="poop">💩</div>
@@ -250,8 +346,10 @@
     const poop = document.getElementById("poop");
     const poopCounter = document.getElementById("poop-counter");
     const poopCountText = document.getElementById("poop-count");
+    const achievement = document.getElementById("achievement");
 
     let poopCount = 0;
+    let achievementUnlocked = false;
 
     const loading = setInterval(() => {
       percentage++;
@@ -303,6 +401,12 @@
       // Counter verschijnt na eerste klik
       poopCounter.style.display = "block";
 
+      // Achievement bij 100 poepjes
+      if (poopCount >= 100 && achievementUnlocked === false) {
+        achievementUnlocked = true;
+        achievement.style.display = "block";
+      }
+
       // +1 animatie maken
       const plusOne = document.createElement("div");
       plusOne.className = "plus-one";
@@ -320,6 +424,10 @@
 
       // Na klikken vliegt hij meteen ergens anders heen
       movePoop();
+    });
+
+    achievement.addEventListener("click", () => {
+      window.location.href = "poep.html";
     });
   </script>
 
