@@ -12,7 +12,72 @@
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #2563eb, #7c3aed);
       color: white;
+      overflow-x: hidden;
+    }
+
+    /* LAADSCHERM */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #111827;
+      color: white;
       display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    .loader-box {
+      text-align: center;
+      width: 80%;
+      max-width: 500px;
+    }
+
+    .loader-box h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+      color: #60a5fa;
+    }
+
+    .loader-box p {
+      color: #d1d5db;
+      margin-bottom: 25px;
+    }
+
+    .bar-background {
+      width: 100%;
+      height: 24px;
+      background: #374151;
+      border-radius: 999px;
+      overflow: visible;
+      position: relative;
+      box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2563eb, #60a5fa, #22d3ee);
+      border-radius: 999px;
+      transition: width 0.08s linear;
+    }
+
+    #percentage {
+      margin-top: 18px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .loader-hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* HOOFDPAGINA */
+    #main-content {
+      display: none;
+      min-height: 100vh;
       justify-content: center;
       align-items: center;
       text-align: center;
@@ -21,6 +86,8 @@
     .container {
       width: 90%;
       max-width: 650px;
+      margin: 0 auto;
+      padding: 40px 0;
     }
 
     h1 {
@@ -72,6 +139,14 @@
     }
 
     @media (max-width: 600px) {
+      .loader-box h1 {
+        font-size: 34px;
+      }
+
+      #percentage {
+        font-size: 24px;
+      }
+
       h1 {
         font-size: 38px;
       }
@@ -89,25 +164,75 @@
 </head>
 
 <body>
-  <div class="container">
-    <h1>Welkom op mijn website</h1>
-    <p>De website is nog in ontwikkeling. Heb geduld persoon :)</p>
 
-    <div class="menu">
-      <a href="poepgame.html">
-        💩 Poepgame
-        <span>Klik op de vliegende poepjes</span>
-      </a>
+  <!-- Laadscherm -->
+  <div id="loader">
+    <div class="loader-box">
+      <h1>Riley Berends</h1>
+      <p>Website wordt geladen...</p>
 
-      <a href="rickroll.html">
-        🎵 Niet klikken
-        <span>Deze knop is absoluut niet verdacht</span>
-      </a>
+      <div class="bar-background">
+        <div class="bar-fill" id="bar"></div>
+      </div>
+
+      <div id="percentage">0%</div>
     </div>
-
-    <footer>
-      © 2026 Riley Berends ~ Gemaakt met heel veel schik en bier
-    </footer>
   </div>
+
+  <!-- Hoofdpagina -->
+  <div id="main-content">
+    <div class="container">
+      <h1>Welkom op mijn website</h1>
+      <p>De website is nog in ontwikkeling. Heb geduld persoon :)</p>
+
+      <div class="menu">
+        <a href="poepgame.html">
+          💩 Poepgame
+          <span>Klik op de vliegende poepjes</span>
+        </a>
+
+        <a href="rickroll.html">
+          🎵 Niet klikken
+          <span>Deze knop is absoluut niet verdacht</span>
+        </a>
+      </div>
+
+      <footer>
+        © 2026 Riley Berends ~ Gemaakt met heel veel schik en bier
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    let percentage = 0;
+
+    const bar = document.getElementById("bar");
+    const percentageText = document.getElementById("percentage");
+    const loader = document.getElementById("loader");
+    const mainContent = document.getElementById("main-content");
+
+    const loading = setInterval(() => {
+      percentage++;
+
+      percentageText.textContent = percentage + "%";
+
+      /*
+        Tot 100% vult de balk normaal.
+        Na 100% gaat de balk expres verder dan zijn vak.
+        Daarom gebruiken we percentage als breedte.
+      */
+      bar.style.width = percentage + "%";
+
+      if (percentage >= 169) {
+        clearInterval(loading);
+
+        setTimeout(() => {
+          loader.classList.add("loader-hidden");
+          mainContent.style.display = "flex";
+        }, 600);
+      }
+    }, 35);
+  </script>
+
 </body>
 </html>
