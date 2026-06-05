@@ -112,6 +112,11 @@
       box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
     }
 
+    textarea:disabled {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
     .counter {
       margin-top: 8px;
       font-size: 13px;
@@ -136,6 +141,7 @@
       margin: 8px 0;
       color: #dc2626;
       font-size: 14px;
+      line-height: 1.4;
     }
 
     .requirement.good {
@@ -179,6 +185,10 @@
     .submit-button.sent {
       background: #16a34a;
       cursor: default;
+    }
+
+    .submit-button:disabled {
+      opacity: 0.95;
     }
 
     .shake {
@@ -337,7 +347,7 @@
 
         <textarea
           id="complaint-text"
-          placeholder="Bijvoorbeeld: deze website heeft mijn tijd verspild..."
+          placeholder="Bijvoorbeeld: Deze website heeft mijn tijd verspild!"
         ></textarea>
 
         <div class="counter">
@@ -345,7 +355,7 @@
         </div>
 
         <div class="requirements">
-          <div class="requirements-title">Uw klacht moet voldoen aan de volgende totaal redelijke eisen:</div>
+          <div class="requirements-title">Uw klacht moet voldoen aan deze totaal redelijke eisen:</div>
 
           <div class="requirement" id="rule-empty">✖ Er moet überhaupt iets ingevuld zijn.</div>
           <div class="requirement" id="rule-min">✖ Minimaal 30 tekens gebruiken.</div>
@@ -397,6 +407,7 @@
     const angryWords = [
       "slecht",
       "kut",
+      "klote",
       "irritant",
       "belachelijk",
       "stom",
@@ -408,38 +419,24 @@
       "drama",
       "rommel",
       "bagger",
-      "troep"
-    ];
-
-    const annoyingReasons = [
-      "Oeps, niet verstuurd. Je klacht mist nog {amount} tekens. Probeer bozer te worden.",
-      "Niet verstuurd. Je hebt {amount} tekens te veel gebruikt. Dit is een klaagmuur, geen autobiografie.",
-      "Niet verstuurd. Er mist een speciaal teken. Zonder leesteken voelt je klacht te volwassen.",
-      "Niet verstuurd. Je mist een hoofdletter. Zelfs klachten hebben standaarden.",
-      "Niet verstuurd. Je klacht klinkt niet klachtwaardig genoeg.",
-      "Niet verstuurd. Je moet nog minimaal één keer doen alsof je echt boos bent.",
-      "Niet verstuurd. Je tekst voldoet aan de eisen, maar mijn gevoel zegt nee.",
-      "Niet verstuurd. De klacht is inhoudelijk twijfelachtig en emotioneel matig.",
-      "Niet verstuurd. Er ontbreekt iets. Wat precies? Dat zoeken we nog uit.",
-      "Niet verstuurd. Deze klacht heeft niet genoeg karakter.",
-      "Niet verstuurd. Je klacht is bijna goed, maar bijna is gewoon fout met hoop.",
-      "Niet verstuurd. De website vindt je toon passief-agressief, maar niet passief-agressief genoeg.",
-      "Niet verstuurd. Voeg meer frustratie toe en probeer het opnieuw.",
-      "Niet verstuurd. Deze klacht is te netjes. Doe normaal.",
-      "Niet verstuurd. Je klacht heeft de vibe-check niet gehaald."
+      "troep",
+      "haat",
+      "vervelend",
+      "mislukt",
+      "fout"
     ];
 
     const successMessages = [
-      "Je klacht is verstuurd. We doen er niks mee.",
+      "Je klacht is verstuurd. Ik doe er niks mee.",
       "Je klacht is succesvol ontvangen en direct genegeerd.",
       "Bedankt voor je klacht. Hij is toegevoegd aan de stapel 'maakt niet uit'.",
       "Je klacht is verstuurd naar de eigenaar. De eigenaar heeft net gedaan alsof hij slaapt.",
       "Verstuurd. Er gebeurt verder helemaal niks.",
       "Je klacht is aangekomen. Helaas is dat ook het einde van dit proces.",
       "Succesvol verstuurd. Verwachte reactietijd: nooit.",
-      "Je klacht staat nu veilig opgeslagen in onze denkbeeldige administratie.",
+      "Je klacht staat nu veilig opgeslagen in Riley's denkbeeldige administratie.",
       "Bedankt. Je klacht wordt behandeld met dezelfde urgentie als een lege batterij in een afstandsbediening.",
-      "Je klacht is verstuurd. Wij waarderen je bijdrage aan de totale hoeveelheid gezeur."
+      "Je klacht is verstuurd. Ik waardeer je bijdrage aan de totale hoeveelheid gezeur."
     ];
 
     let complaintWasSent = false;
@@ -456,7 +453,7 @@
       if (complaintWasSent) {
         showPopup(
           "Rustig aan.",
-          "Je klacht is al verstuurd. We gingen er toen al niks mee doen.",
+          "Je klacht is al verstuurd. Ik ging er toen al niks mee doen.",
           false
         );
         return;
@@ -556,6 +553,73 @@
       return angryWords.some(word => lowerText.includes(word));
     }
 
+    function getSpecialComplaintResponse(text) {
+      const complaint = text.toLowerCase();
+
+      const herkenning = [
+        {
+          woorden: ["tijd verspild", "tijdverspilling", "verspilde tijd", "mijn tijd", "kost tijd", "tijd gekost"],
+          antwoord: "Je klacht is verstuurd. Maar eerlijk: je tijd was al verspild zodra je deze website opende."
+        },
+        {
+          woorden: ["poep", "stront", "schijt", "drol", "poepgame"],
+          antwoord: "Je klacht over poep is ontvangen. Helaas valt dit binnen de kernfunctionaliteit van deze website."
+        },
+        {
+          woorden: ["rickroll", "gerickrolld", "rick astley", "never gonna give you up"],
+          antwoord: "Je klacht over de Rickroll is afgewezen. Je bent zelf op een verdachte knop gaan klikken."
+        },
+        {
+          woorden: ["bier", "grolsch", "pils", "alcohol"],
+          antwoord: "Je klacht bevat bier. Deze wordt automatisch omgezet naar een compliment."
+        },
+        {
+          woorden: ["lelijk", "slecht design", "ziet er niet uit", "mooier", "design"],
+          antwoord: "Je klacht over het design is ontvangen. Helaas noemt de eigenaar dit gewoon stijl."
+        },
+        {
+          woorden: ["traag", "langzaam", "laadt niet", "laden", "snelheid"],
+          antwoord: "Je klacht over snelheid is ontvangen. De website doet gewoon rustig aan. Dat mag ook eens."
+        },
+        {
+          woorden: ["bug", "fout", "werkt niet", "kapot", "mislukt"],
+          antwoord: "Je klacht over een fout is ontvangen. Volgens de eigenaar is dit geen bug, maar karakter."
+        },
+        {
+          woorden: ["kut", "klote", "irritant", "belachelijk", "stom", "waardeloos"],
+          antwoord: "Je klacht klinkt boos genoeg. Hij is verstuurd naar de afdeling 'joh, wat vervelend'."
+        },
+        {
+          woorden: ["riley", "eigenaar"],
+          antwoord: "Je klacht over de eigenaar is ontvangen. De eigenaar heeft besloten zichzelf vrij te spreken."
+        },
+        {
+          woorden: ["404", "pagina bestaat niet", "niet gevonden"],
+          antwoord: "Je klacht over een ontbrekende pagina is ontvangen. Waarschijnlijk heb jij gewoon iets verkeerd gedaan."
+        },
+        {
+          woorden: ["timer", "tijd verspild timer", "tijdverspilling timer"],
+          antwoord: "Je klacht over de timer is ontvangen. De timer telt ondertussen vrolijk verder. Dat is zijn werk."
+        },
+        {
+          woorden: ["telefoon", "mobiel", "iphone", "safari"],
+          antwoord: "Je klacht over mobiel gebruik is ontvangen. De website doet zijn best, jouw telefoon waarschijnlijk ook."
+        },
+        {
+          woorden: ["achterhoek", "normaal", "boogie"],
+          antwoord: "Je klacht bevat Achterhoekse signalen. Deze klacht wordt met voorrang genegeerd onder het genot van bier."
+        }
+      ];
+
+      for (const groep of herkenning) {
+        if (groep.woorden.some(woord => complaint.includes(woord))) {
+          return groep.antwoord;
+        }
+      }
+
+      return null;
+    }
+
     function submitComplaintFake() {
       submitButton.classList.add("loading");
       submitButton.textContent = "Klacht wordt verstuurd...";
@@ -570,10 +634,16 @@
         submitButton.classList.add("sent");
         submitButton.textContent = "Verstuurd";
 
-        const randomSuccess =
-          successMessages[Math.floor(Math.random() * successMessages.length)];
+        const specialResponse = getSpecialComplaintResponse(complaintText.value);
 
-        showPopup("Verstuurd.", randomSuccess, true);
+        if (specialResponse) {
+          showPopup("Verstuurd.", specialResponse, true);
+        } else {
+          const randomSuccess =
+            successMessages[Math.floor(Math.random() * successMessages.length)];
+
+          showPopup("Verstuurd.", randomSuccess, true);
+        }
       }, 1800);
     }
 
