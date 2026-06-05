@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Game</title>
+
+  <style>
+    /* ALGEMEEN */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #7c3aed);
+      color: white;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    /* TIJD VERSPILD */
+    #waste-timer {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      background: rgba(17, 24, 39, 0.9);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 9000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    #waste-time {
+      color: #facc15;
+    }
+
+    /* TERUGKNOP */
+    .back-button {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      background: white;
+      color: #111827;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: bold;
+      z-index: 5002;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .back-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* GAME */
+    #game-canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.12), transparent 35%),
+        linear-gradient(135deg, #111827, #7c3aed);
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 4000;
+      padding: 20px;
+      background: rgba(17, 24, 39, 0.68);
+      backdrop-filter: blur(8px);
+    }
+
+    .screen-box {
+      max-width: 560px;
+      background: rgba(255,255,255,0.95);
+      color: #111827;
+      padding: 32px;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+    }
+
+    .screen-box h1 {
+      margin-top: 0;
+      font-size: 42px;
+      color: #7c3aed;
+    }
+
+    .screen-box p {
+      font-size: 18px;
+      line-height: 1.5;
+      color: #374151;
+    }
+
+    .start-button {
+      margin-top: 18px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .start-button:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+
+    .hud {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 3000;
+      background: rgba(17, 24, 39, 0.88);
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-weight: bold;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    .hud span {
+      color: #facc15;
+    }
+
+    #game-over-screen {
+      display: none;
+    }
+
+    #final-message {
+      font-weight: bold;
+      color: #7c3aed;
+    }
+
+    /* MOBIEL */
+    @media (max-width: 600px) {
+      .back-button {
+        top: 12px;
+        left: 12px;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      .hud {
+        top: 12px;
+        right: 12px;
+        font-size: 13px;
+        padding: 10px 12px;
+      }
+
+      #waste-timer {
+        left: 12px;
+        bottom: 12px;
+        font-size: 12px;
+        padding: 10px 12px;
+      }
+
+      .screen-box {
+        padding: 24px;
+      }
+
+      .screen-box h1 {
+        font-size: 32px;
+      }
+
+      .screen-box p {
+        font-size: 16px;
+      }
+
+      .start-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Tijd verspild -->
+  <div id="waste-timer">
+    Tijd verspild: <span id="waste-time">0 seconden</span>
+  </div>
+
+  <!-- Terugknop -->
+  <a class="back-button" href="index.html">← Terug</a>
+
+  <!-- HUD -->
+  <div class="hud">
+    Score: <span id="score">0</span><br>
+    Levens: <span id="lives">3</span><br>
+    Tijd: <span id="time">0</span>s
+  </div>
+
+  <!-- Canvas -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- Startscherm -->
+  <div class="screen" id="start-screen">
+    <div class="screen-box">
+      <h1>Ontwijk de Poep</h1>
+      <p>
+        Beweeg je speler met je muis of vinger.<br>
+        Pak bier voor punten. Ontwijk de poep.<br>
+        Simpel. Smerig. Effectief.
+      </p>
+      <button class="start-button" id="start-button">Start game</button>
+    </div>
+  </div>
+
+  <!-- Game over scherm -->
+  <div class="screen" id="game-over-screen">
+    <div class="screen-box">
+      <h1>Game over</h1>
+      <p>Score: <strong id="final-score">0</strong></p>
+      <p id="final-message">Je hebt bier gepakt en poep ontweken. Dat is eigenlijk het leven.</p>
+      <button class="start-button" id="restart-button">Opnieuw spelen</button>
+    </div>
+  </div>
+
+  <script>
+    /* GAME SETUP */
+    const canvas = document.getElementById("game-canvas");
+    const ctx = canvas.getContext("2d");
+
+    const startScreen = document.getElementById("start-screen");
+    const gameOverScreen = document.getElementById("game-over-screen");
+
+    const startButton = document.getElementById("start-button");
+    const restartButton = document.getElementById("restart-button");
+
+    const scoreText = document.getElementById("score");
+    const livesText = document.getElementById("lives");
+    const timeText = document.getElementById("time");
+    const finalScoreText = document.getElementById("final-score");
+    const finalMessageText = document.getElementById("final-message");
+
+    let canvasWidth;
+    let canvasHeight;
+
+    let gameRunning = false;
+    let score = 0;
+    let lives = 3;
+    let gameTime = 0;
+    let lastTime = 0;
+    let spawnTimer = 0;
+
+    const player = {
+      x: 0,
+      y: 0,
+      size: 44,
+      targetX: 0,
+      targetY: 0
+    };
+
+    let fallingObjects = [];
+
+    const gameOverMessages = [
+      "Je bent geraakt door poep. Klassiek.",
+      "Je hebt bier gepakt en poep ontweken. Dat is eigenlijk het leven.",
+      "Niet slecht. Niet goed ook, maar we blijven positief.",
+      "Je reflexen zijn ongeveer net zo betrouwbaar als deze website.",
+      "Game over. De poep heeft gewonnen.",
+      "Je hebt gevochten als een held en verloren als een bezoeker van deze website.",
+      "Dit was eigenlijk nog nuttiger dan de rode knop.",
+      "Je hebt geprobeerd. Dat is meestal waar het misgaat.",
+      "De poep kwam van boven. Jij stond eronder. Wiskunde.",
+      "Soms win je. Soms word je geraakt door digitale stront."
+    ];
+
+    function resizeCanvas() {
+      canvasWidth = window.innerWidth;
+      canvasHeight = window.innerHeight;
+
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+
+      if (!gameRunning) {
+        player.x = canvasWidth / 2;
+        player.y = canvasHeight - 110;
+        player.targetX = player.x;
+        player.targetY = player.y;
+      }
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    /* BESTURING */
+    function movePlayer(clientX, clientY) {
+      player.targetX = clientX;
+      player.targetY = clientY;
+
+      const margin = player.size / 2;
+
+      if (player.targetX < margin) player.targetX = margin;
+      if (player.targetX > canvasWidth - margin) player.targetX = canvasWidth - margin;
+      if (player.targetY < 80) player.targetY = 80;
+      if (player.targetY > canvasHeight - margin) player.targetY = canvasHeight - margin;
+    }
+
+    canvas.addEventListener("mousemove", (event) => {
+      movePlayer(event.clientX, event.clientY);
+    });
+
+    canvas.addEventListener("touchmove", (event) => {
+      event.preventDefault();
+      const touch = event.touches[0];
+      movePlayer(touch.clientX, touch.clientY);
+    }, { passive: false });
+
+    canvas.addEventListener("touchstart", (event) => {
+      event.preventDefault();
+      const touch = event.touches[0];
+      movePlayer(touch.clientX, touch.clientY);
+    }, { passive: false });
+
+    /* START / RESTART */
+    startButton.addEventListener("click", startGame);
+    restartButton.addEventListener("click", startGame);
+
+    function startGame() {
+      score = 0;
+      lives = 3;
+      gameTime = 0;
+      spawnTimer = 0;
+      fallingObjects = [];
+
+      player.x = canvasWidth / 2;
+      player.y = canvasHeight - 110;
+      player.targetX = player.x;
+      player.targetY = player.y;
+
+      scoreText.textContent = score;
+      livesText.textContent = lives;
+      timeText.textContent = Math.floor(gameTime);
+
+      startScreen.style.display = "none";
+      gameOverScreen.style.display = "none";
+
+      gameRunning = true;
+      lastTime = performance.now();
+      requestAnimationFrame(gameLoop);
+    }
+
+    /* OBJECTEN */
+    function spawnObject() {
+      const random = Math.random();
+
+      let type;
+      let emoji;
+      let size;
+      let points;
+      let damage;
+
+      if (random < 0.68) {
+        type = "poop";
+        emoji = "💩";
+        size = 42;
+        points = 0;
+        damage = 1;
+      } else if (random < 0.93) {
+        type = "beer";
+        emoji = "🍺";
+        size = 40;
+        points = 10;
+        damage = 0;
+      } else {
+        type = "heart";
+        emoji = "❤️";
+        size = 38;
+        points = 0;
+        damage = -1;
+      }
+
+      const baseSpeed = 120 + gameTime * 4;
+
+      fallingObjects.push({
+        type: type,
+        emoji: emoji,
+        x: Math.random() * (canvasWidth - 80) + 40,
+        y: -60,
+        size: size,
+        speed: baseSpeed + Math.random() * 130,
+        points: points,
+        damage: damage,
+        rotation: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 2
+      });
+    }
+
+    /* GAME LOOP */
+    function gameLoop(currentTime) {
+      if (!gameRunning) return;
+
+      const deltaTime = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
+
+      updateGame(deltaTime);
+      drawGame();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function updateGame(deltaTime) {
+      gameTime += deltaTime;
+      spawnTimer += deltaTime;
+
+      const spawnSpeed = Math.max(0.25, 0.85 - gameTime * 0.012);
+
+      if (spawnTimer > spawnSpeed) {
+        spawnObject();
+        spawnTimer = 0;
+      }
+
+      player.x += (player.targetX - player.x) * 0.22;
+      player.y += (player.targetY - player.y) * 0.22;
+
+      for (let i = fallingObjects.length - 1; i >= 0; i--) {
+        const object = fallingObjects[i];
+
+        object.y += object.speed * deltaTime;
+        object.rotation += object.spin * deltaTime;
+
+        const distance = Math.hypot(player.x - object.x, player.y - object.y);
+        const hitDistance = (player.size + object.size) / 2;
+
+        if (distance < hitDistance) {
+          handleCollision(object);
+          fallingObjects.splice(i, 1);
+          continue;
+        }
+
+        if (object.y > canvasHeight + 80) {
+          fallingObjects.splice(i, 1);
+        }
+      }
+
+      scoreText.textContent = score;
+      livesText.textContent = lives;
+      timeText.textContent = Math.floor(gameTime);
+
+      if (lives <= 0) {
+        endGame();
+      }
+    }
+
+    function handleCollision(object) {
+      if (object.type === "poop") {
+        lives -= 1;
+        score = Math.max(0, score - 5);
+        screenShake();
+      }
+
+      if (object.type === "beer") {
+        score += object.points;
+      }
+
+      if (object.type === "heart") {
+        if (lives < 5) {
+          lives += 1;
+        } else {
+          score += 15;
+        }
+      }
+    }
+
+    function endGame() {
+      gameRunning = false;
+
+      const randomMessage =
+        gameOverMessages[Math.floor(Math.random() * gameOverMessages.length)];
+
+      finalScoreText.textContent = score;
+      finalMessageText.textContent = randomMessage;
+
+      gameOverScreen.style.display = "flex";
+    }
+
+    /* TEKENEN */
+    function drawGame() {
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      drawBackground();
+      drawPlayer();
+
+      for (const object of fallingObjects) {
+        drawEmojiObject(object);
+      }
+    }
+
+    function drawBackground() {
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+
+      for (let i = 0; i < 35; i++) {
+        const x = (i * 97 + gameTime * 18) % canvasWidth;
+        const y = (i * 53 + gameTime * 26) % canvasHeight;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawPlayer() {
+      ctx.save();
+
+      ctx.translate(player.x, player.y);
+
+      ctx.beginPath();
+      ctx.arc(0, 0, player.size / 2, 0, Math.PI * 2);
+      ctx.fillStyle = "#facc15";
+      ctx.fill();
+
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "white";
+      ctx.stroke();
+
+      ctx.font = "30px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("😐", 0, 1);
+
+      ctx.restore();
+    }
+
+    function drawEmojiObject(object) {
+      ctx.save();
+
+      ctx.translate(object.x, object.y);
+      ctx.rotate(object.rotation);
+
+      ctx.font = object.size + "px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(object.emoji, 0, 0);
+
+      ctx.restore();
+    }
+
+    function screenShake() {
+      canvas.style.transform = "translateX(-8px)";
+
+      setTimeout(() => {
+        canvas.style.transform = "translateX(8px)";
+      }, 50);
+
+      setTimeout(() => {
+        canvas.style.transform = "translateX(0)";
+      }, 100);
+    }
+
+    drawGame();
+
+    /* TIJD VERSPILD */
+    const wasteTimeText = document.getElementById("waste-time");
+
+    let totalWastedSeconds = Number(localStorage.getItem("totalWastedSeconds")) || 0;
+
+    function showWasteTimer() {
+      const hours = Math.floor(totalWastedSeconds / 3600);
+      const minutes = Math.floor((totalWastedSeconds % 3600) / 60);
+      const seconds = totalWastedSeconds % 60;
+
+      if (hours > 0) {
+        wasteTimeText.textContent =
+          hours + " uur, " + minutes + " minuten en " + seconds + " seconden";
+      } else if (minutes > 0) {
+        wasteTimeText.textContent =
+          minutes + " minuten en " + seconds + " seconden";
+      } else {
+        wasteTimeText.textContent = seconds + " seconden";
+      }
+    }
+
+    showWasteTimer();
+
+    setInterval(() => {
+      totalWastedSeconds++;
+      localStorage.setItem("totalWastedSeconds", totalWastedSeconds);
+      showWasteTimer();
+    }, 1000);
+  </script>
+
+</body>
+</html>
