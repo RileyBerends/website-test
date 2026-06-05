@@ -5,8 +5,3 @@ Als je toch denkt van, poe he, wat een mooie website dat wil ik ook.
 Vraag dan AI ernaar. 
 
 Fijne dag :)
-
-
-LET OP, DIT IS EEN OEFEN REPO.  
-
-De oefenwebsite is te bereiken via rileyberends.github.io/website-test
