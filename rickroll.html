@@ -6,33 +6,7 @@
   <title>Niet klikken</title>
 
   <style>
-
-    #waste-timer {
-  position: fixed;
-  left: 18px;
-  bottom: 18px;
-  background: rgba(17, 24, 39, 0.9);
-  color: white;
-  padding: 12px 16px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: bold;
-  z-index: 9000;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-}
-
-#waste-time {
-  color: #facc15;
-}
-
-@media (max-width: 600px) {
-  #waste-timer {
-    left: 12px;
-    bottom: 12px;
-    font-size: 12px;
-    padding: 10px 12px;
-  }
-}
+    /* ALGEMEEN */
     body {
       margin: 0;
       min-height: 100vh;
@@ -49,6 +23,7 @@
     .container {
       width: 90%;
       max-width: 850px;
+      padding: 40px 0;
     }
 
     h1 {
@@ -63,6 +38,26 @@
       margin-bottom: 24px;
     }
 
+    /* TIJD VERSPILD */
+    #waste-timer {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      background: rgba(17, 24, 39, 0.9);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 9000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    #waste-time {
+      color: #facc15;
+    }
+
+    /* VIDEO */
     iframe {
       width: 100%;
       max-width: 760px;
@@ -73,6 +68,7 @@
       background: black;
     }
 
+    /* KNOPPEN */
     .buttons {
       margin-top: 25px;
       display: flex;
@@ -81,7 +77,7 @@
       flex-wrap: wrap;
     }
 
-    a {
+    .button {
       background: white;
       color: #111827;
       text-decoration: none;
@@ -90,9 +86,10 @@
       font-weight: bold;
       box-shadow: 0 8px 24px rgba(0,0,0,0.25);
       transition: transform 0.2s ease;
+      display: inline-block;
     }
 
-    a:hover {
+    .button:hover {
       transform: scale(1.05);
     }
 
@@ -101,7 +98,15 @@
       color: white;
     }
 
+    /* MOBIEL */
     @media (max-width: 600px) {
+      #waste-timer {
+        left: 12px;
+        bottom: 12px;
+        font-size: 12px;
+        padding: 10px 12px;
+      }
+
       h1 {
         font-size: 34px;
       }
@@ -114,8 +119,13 @@
         height: 220px;
       }
 
-      a {
+      .button {
         width: 100%;
+        box-sizing: border-box;
+      }
+
+      .container {
+        padding-bottom: 80px;
       }
     }
   </style>
@@ -123,63 +133,64 @@
 
 <body>
 
+  <!-- Tijd verspild -->
   <div id="waste-timer">
-  Tijd verspild: <span id="waste-time">0 seconden</span>
-</div>
-  
+    Tijd verspild: <span id="waste-time">0 seconden</span>
+  </div>
+
   <div class="container">
     <h1>Je bent gerickrolld.</h1>
     <p>Je had ook gewoon niet kunnen klikken.</p>
 
     <iframe
-      src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+      src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1"
       title="Rickroll"
       allow="autoplay; encrypted-media"
       allowfullscreen>
     </iframe>
 
     <div class="buttons">
-      <a href="index.html">← Terug naar home</a>
+      <a class="button" href="index.html">← Terug naar home</a>
 
       <a
-        class="danger"
+        class="button danger"
         href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         target="_blank">
         Open de schade in YouTube
       </a>
     </div>
   </div>
+
+  <script>
+    /* TIJD VERSPILD */
+    const wasteTimeText = document.getElementById("waste-time");
+
+    let totalWastedSeconds = Number(localStorage.getItem("totalWastedSeconds")) || 0;
+
+    function showWasteTimer() {
+      const hours = Math.floor(totalWastedSeconds / 3600);
+      const minutes = Math.floor((totalWastedSeconds % 3600) / 60);
+      const seconds = totalWastedSeconds % 60;
+
+      if (hours > 0) {
+        wasteTimeText.textContent =
+          hours + " uur, " + minutes + " minuten en " + seconds + " seconden";
+      } else if (minutes > 0) {
+        wasteTimeText.textContent =
+          minutes + " minuten en " + seconds + " seconden";
+      } else {
+        wasteTimeText.textContent = seconds + " seconden";
+      }
+    }
+
+    showWasteTimer();
+
+    setInterval(() => {
+      totalWastedSeconds++;
+      localStorage.setItem("totalWastedSeconds", totalWastedSeconds);
+      showWasteTimer();
+    }, 1000);
+  </script>
+
 </body>
 </html>
-
-<script>
-  const wasteTimeText = document.getElementById("waste-time");
-
-  let wasteStartTime = localStorage.getItem("wasteStartTime");
-
-  if (!wasteStartTime) {
-    wasteStartTime = Date.now();
-    localStorage.setItem("wasteStartTime", wasteStartTime);
-  }
-
-  function updateWasteTimer() {
-    const now = Date.now();
-    const wastedMilliseconds = now - Number(wasteStartTime);
-    const totalSeconds = Math.floor(wastedMilliseconds / 1000);
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    if (hours > 0) {
-      wasteTimeText.textContent = hours + " uur, " + minutes + " minuten en " + seconds + " seconden";
-    } else if (minutes > 0) {
-      wasteTimeText.textContent = minutes + " minuten en " + seconds + " seconden";
-    } else {
-      wasteTimeText.textContent = seconds + " seconden";
-    }
-  }
-
-  updateWasteTimer();
-  setInterval(updateWasteTimer, 1000);
-</script>
