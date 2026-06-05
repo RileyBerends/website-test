@@ -22,7 +22,7 @@
 
     .container {
       width: 90%;
-      max-width: 750px;
+      max-width: 760px;
       padding: 40px 0;
     }
 
@@ -119,6 +119,30 @@
       text-align: right;
     }
 
+    /* EISEN */
+    .requirements {
+      margin-top: 18px;
+      background: #f3f4f6;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .requirements-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .requirement {
+      margin: 8px 0;
+      color: #dc2626;
+      font-size: 14px;
+    }
+
+    .requirement.good {
+      color: #16a34a;
+    }
+
+    /* KNOP */
     .submit-button {
       margin-top: 18px;
       width: 100%;
@@ -145,6 +169,16 @@
     .submit-button:active {
       transform: scale(0.95) rotate(-1deg);
       box-shadow: 0 5px 16px rgba(0,0,0,0.25);
+    }
+
+    .submit-button.loading {
+      background: #f59e0b;
+      cursor: wait;
+    }
+
+    .submit-button.sent {
+      background: #16a34a;
+      cursor: default;
     }
 
     .shake {
@@ -189,7 +223,7 @@
       background: white;
       color: #111827;
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
       border-radius: 22px;
       padding: 26px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.45);
@@ -200,6 +234,10 @@
     #popup h2 {
       margin-top: 0;
       color: #ef4444;
+    }
+
+    #popup.success h2 {
+      color: #16a34a;
     }
 
     #popup-message {
@@ -306,7 +344,18 @@
           Tekens: <span id="character-count">0</span>
         </div>
 
-        <button class="submit-button" type="submit">
+        <div class="requirements">
+          <div class="requirements-title">Uw klacht moet voldoen aan de volgende totaal redelijke eisen:</div>
+
+          <div class="requirement" id="rule-empty">✖ Er moet überhaupt iets ingevuld zijn.</div>
+          <div class="requirement" id="rule-min">✖ Minimaal 30 tekens gebruiken.</div>
+          <div class="requirement" id="rule-max">✖ Maximaal 220 tekens gebruiken. We hebben ook niet de hele dag.</div>
+          <div class="requirement" id="rule-special">✖ Minimaal één speciaal teken gebruiken, zoals !, ?, @ of #.</div>
+          <div class="requirement" id="rule-uppercase">✖ Minimaal één hoofdletter gebruiken. Klaag met klasse.</div>
+          <div class="requirement" id="rule-angry">✖ Minimaal één klachtwaardig woord gebruiken.</div>
+        </div>
+
+        <button class="submit-button" id="submit-button" type="submit">
           Verstuur klacht
         </button>
       </form>
@@ -328,171 +377,224 @@
     const complaintText = document.getElementById("complaint-text");
     const characterCount = document.getElementById("character-count");
 
+    const submitButton = document.getElementById("submit-button");
+
     const popupBackground = document.getElementById("popup-background");
+    const popup = document.getElementById("popup");
     const popupTitle = document.getElementById("popup-title");
     const popupMessage = document.getElementById("popup-message");
     const popupClose = document.getElementById("popup-close");
 
-    const submitButton = document.querySelector(".submit-button");
+    const rules = {
+      empty: document.getElementById("rule-empty"),
+      min: document.getElementById("rule-min"),
+      max: document.getElementById("rule-max"),
+      special: document.getElementById("rule-special"),
+      uppercase: document.getElementById("rule-uppercase"),
+      angry: document.getElementById("rule-angry")
+    };
 
-    const failedMessages = [
-      "Oeps, mislukt. Geen internetverbinding. Probeer later opnieuw. Of niet.",
-      "Wat een kutklacht. Deze verstuur ik niet.",
-      "Je klacht is succesvol genegeerd.",
-      "Fout 404: interesse niet gevonden.",
-      "De eigenaar is momenteel emotioneel niet beschikbaar.",
-      "Je klacht is doorgestuurd naar de prullenbak. De prullenbak heeft geweigerd.",
-      "Mislukt. De website vond je klacht te dramatisch.",
-      "Sorry, het klaagsysteem heeft vandaag vrij genomen.",
-      "Je klacht is bijna verstuurd. Grapje.",
-      "De server zei: nee.",
-      "Je klacht is ontvangen, gelezen door niemand, en direct vergeten.",
-      "Deze klacht had ook gewoon een diepe zucht kunnen zijn.",
-      "Melding mislukt: de website accepteert vandaag alleen complimenten.",
-      "Je klacht bevat te veel emotie en te weinig bier.",
-      "De eigenaar heeft je klacht niet gelezen, maar is het waarschijnlijk oneens.",
-      "Deze klacht is technisch gezien tekst, maar verder weinig.",
-      "Versturen mislukt. Reden: vibes waren niet goed.",
-      "Je klacht is geweigerd wegens gebrek aan gezelligheid.",
-      "Klacht niet verzonden. Het systeem voelde zich aangevallen.",
-      "Deze klacht is opgeslagen in het mapje: later misschien nooit.",
-      "We hebben je klacht beoordeeld en besloten hem te negeren.",
-      "De website is niet boos, alleen teleurgesteld in je klacht.",
-      "Fout 500: de klaagmachine is oververhit.",
-      "Je klacht kon niet worden verstuurd omdat Mercury in retrograde staat. Denk ik.",
-      "De klacht is onderweg. Naar nergens.",
-      "Mislukt. Je had ook gewoon kunnen lachen.",
-      "Deze klacht voldoet niet aan onze extreem vage eisen.",
-      "Je klacht is niet verstuurd omdat de knop daar geen zin in had.",
-      "Klacht geweigerd. Probeer het opnieuw met meer flair.",
-      "Je klacht is doorgestuurd naar de afdeling onzin. Die bestaat niet.",
-      "De website heeft je klacht gelezen en zei: mwah.",
-      "Deze klacht is zo slecht dat zelfs de timer schaamte voelt.",
-      "Oeps. Je klacht is verdwaald in de Achterhoek.",
-      "Je klacht kon niet worden opgeslagen. De database is gaan wandelen.",
-      "Het systeem accepteert alleen klachten op dinsdagen met volle maan.",
-      "Je klacht is te serieus voor deze website.",
-      "De klacht is niet verstuurd. Reden: eigenaar had geen zin.",
-      "Bedankt voor je klacht. Helaas is bedanken het enige wat we doen.",
-      "Je klacht is afgewezen wegens overdreven verwachtingen.",
-      "Deze website draait op schik en bier, niet op klantenservice."
+    const angryWords = [
+      "slecht",
+      "kut",
+      "irritant",
+      "belachelijk",
+      "stom",
+      "waardeloos",
+      "klacht",
+      "boos",
+      "schaam",
+      "vreselijk",
+      "drama",
+      "rommel",
+      "bagger",
+      "troep"
     ];
 
-    const validationMessages = [
-      "Je moet nog {amount} tekens gebruiken voordat deze klacht professioneel genoeg is.",
-      "Je hebt {amount} tekens te veel gebruikt. Korter klagen graag.",
-      "Je klacht mist minimaal één uitroepteken. Klaag met gevoel.",
-      "Je klacht mist een vraagteken. Ben je wel verward genoeg?",
-      "Je klacht moet minimaal één speciaal teken bevatten. Bijvoorbeeld @, # of %. Waarom? Geen idee.",
-      "Je klacht bevat te weinig drama. Voeg meer verontwaardiging toe.",
-      "Je klacht is te netjes. Dit is een klaagmuur, geen sollicitatiebrief.",
-      "Je klacht gebruikt te weinig hoofdletters. SCHREEUW EENS EEN BEETJE.",
-      "Je klacht bevat geen punt. Zelfs frustratie heeft interpunctie nodig.",
-      "Je klacht is grammaticaal verdacht, maar ik kan niet uitleggen waarom.",
-      "Je klacht is te kort om serieus genegeerd te worden.",
-      "Je klacht is te lang om met droge ogen te negeren.",
-      "Je moet eerst aantonen dat je echt boos bent.",
-      "Je klacht mist het woord 'belachelijk'. Dat is verplicht. Vanaf nu.",
-      "Je klacht is niet passief-agressief genoeg.",
-      "Je klacht moet minimaal één spatie bevatten. Ademhalen mag.",
-      "Je klacht lijkt op feedback. Dat ondersteunen we hier niet.",
-      "Je klacht is bijna goed, maar helaas bijna telt niet.",
-      "Je klacht bevat te weinig nutteloze details.",
-      "Je klacht is afgekeurd door een denkbeeldige commissie."
+    const annoyingReasons = [
+      "Oeps, niet verstuurd. Je klacht mist nog {amount} tekens. Probeer bozer te worden.",
+      "Niet verstuurd. Je hebt {amount} tekens te veel gebruikt. Dit is een klaagmuur, geen autobiografie.",
+      "Niet verstuurd. Er mist een speciaal teken. Zonder leesteken voelt je klacht te volwassen.",
+      "Niet verstuurd. Je mist een hoofdletter. Zelfs klachten hebben standaarden.",
+      "Niet verstuurd. Je klacht klinkt niet klachtwaardig genoeg.",
+      "Niet verstuurd. Je moet nog minimaal één keer doen alsof je echt boos bent.",
+      "Niet verstuurd. Je tekst voldoet aan de eisen, maar mijn gevoel zegt nee.",
+      "Niet verstuurd. De klacht is inhoudelijk twijfelachtig en emotioneel matig.",
+      "Niet verstuurd. Er ontbreekt iets. Wat precies? Dat zoeken we nog uit.",
+      "Niet verstuurd. Deze klacht heeft niet genoeg karakter.",
+      "Niet verstuurd. Je klacht is bijna goed, maar bijna is gewoon fout met hoop.",
+      "Niet verstuurd. De website vindt je toon passief-agressief, maar niet passief-agressief genoeg.",
+      "Niet verstuurd. Voeg meer frustratie toe en probeer het opnieuw.",
+      "Niet verstuurd. Deze klacht is te netjes. Doe normaal.",
+      "Niet verstuurd. Je klacht heeft de vibe-check niet gehaald."
     ];
+
+    const successMessages = [
+      "Je klacht is verstuurd. We doen er niks mee.",
+      "Je klacht is succesvol ontvangen en direct genegeerd.",
+      "Bedankt voor je klacht. Hij is toegevoegd aan de stapel 'maakt niet uit'.",
+      "Je klacht is verstuurd naar de eigenaar. De eigenaar heeft net gedaan alsof hij slaapt.",
+      "Verstuurd. Er gebeurt verder helemaal niks.",
+      "Je klacht is aangekomen. Helaas is dat ook het einde van dit proces.",
+      "Succesvol verstuurd. Verwachte reactietijd: nooit.",
+      "Je klacht staat nu veilig opgeslagen in onze denkbeeldige administratie.",
+      "Bedankt. Je klacht wordt behandeld met dezelfde urgentie als een lege batterij in een afstandsbediening.",
+      "Je klacht is verstuurd. Wij waarderen je bijdrage aan de totale hoeveelheid gezeur."
+    ];
+
+    let complaintWasSent = false;
 
     complaintText.addEventListener("input", () => {
       characterCount.textContent = complaintText.value.length;
+      updateRules();
+      resetButtonIfNeeded();
     });
 
     complaintForm.addEventListener("submit", (event) => {
       event.preventDefault();
 
+      if (complaintWasSent) {
+        showPopup(
+          "Rustig aan.",
+          "Je klacht is al verstuurd. We gingen er toen al niks mee doen.",
+          false
+        );
+        return;
+      }
+
+      const validation = getValidation();
+
+      if (!validation.valid) {
+        submitButton.classList.remove("shake");
+        void submitButton.offsetWidth;
+        submitButton.classList.add("shake");
+
+        showPopup("Niet verstuurd.", validation.reason, false);
+        return;
+      }
+
+      submitComplaintFake();
+    });
+
+    function getValidation() {
       const complaint = complaintText.value.trim();
       const length = complaint.length;
 
-      submitButton.classList.remove("shake");
-      void submitButton.offsetWidth;
-      submitButton.classList.add("shake");
-
       if (length === 0) {
-        showPopup(
-          "Nee hè.",
-          "Je moet wel eerst iets typen. Ik kan geen lege klacht negeren."
-        );
-        return;
+        return {
+          valid: false,
+          reason: "Je moet wel eerst iets typen. Ik kan geen lege klacht versturen om daarna te negeren."
+        };
       }
 
-      const randomRule = Math.floor(Math.random() * 9);
-
-      if (length < 20 && randomRule <= 4) {
-        const needed = 20 - length;
-        showPopup(
-          "Te weinig geklaag.",
-          "Je moet nog " + needed + " tekens gebruiken voordat ik dit kan negeren."
-        );
-        return;
+      if (length < 30) {
+        return {
+          valid: false,
+          reason: "Je klacht is te kort. Je moet nog " + (30 - length) + " tekens gebruiken."
+        };
       }
 
-      if (length > 250 && randomRule <= 4) {
-        const tooMuch = length - 250;
-        showPopup(
-          "Te veel geklaag.",
-          "Je hebt " + tooMuch + " tekens te veel gebruikt. Ik ga dit natuurlijk niet allemaal lezen."
-        );
-        return;
+      if (length > 220) {
+        return {
+          valid: false,
+          reason: "Je klacht is te lang. Je hebt " + (length - 220) + " tekens te veel gebruikt."
+        };
       }
 
-      if (!complaint.includes("!") && randomRule === 5) {
-        showPopup(
-          "Onvoldoende boosheid.",
-          "Je klacht mist een uitroepteken. Klaag met meer overtuiging."
-        );
-        return;
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(complaint)) {
+        return {
+          valid: false,
+          reason: "Je klacht mist een speciaal teken. Gebruik bijvoorbeeld !, ?, @ of #. Waarom? Omdat het kan."
+        };
       }
 
-      if (!/[!@#$%^&*(),.?":{}|<>]/.test(complaint) && randomRule === 6) {
-        showPopup(
-          "Te normaal.",
-          "Je moet nog minimaal één speciaal teken gebruiken. Dit is compleet willekeurig, maar wel verplicht."
-        );
-        return;
+      if (!/[A-Z]/.test(complaint)) {
+        return {
+          valid: false,
+          reason: "Je klacht mist een hoofdletter. Klaag alsof je ergens voor staat."
+        };
       }
 
-      if (!/[A-Z]/.test(complaint) && randomRule === 7) {
-        showPopup(
-          "Te rustig.",
-          "Je klacht bevat geen hoofdletters. Als je klaagt, doe het dan met passie."
-        );
-        return;
+      if (!hasAngryWord(complaint)) {
+        return {
+          valid: false,
+          reason: "Je klacht mist een klachtwaardig woord, zoals 'belachelijk', 'slecht', 'stom', 'drama' of iets in die richting."
+        };
       }
 
-      const shouldValidationAnnoy = Math.random() < 0.35;
+      return {
+        valid: true,
+        reason: ""
+      };
+    }
 
-      if (shouldValidationAnnoy) {
-        const randomValidation = validationMessages[
-          Math.floor(Math.random() * validationMessages.length)
-        ];
+    function updateRules() {
+      const complaint = complaintText.value.trim();
+      const length = complaint.length;
 
-        const fakeAmount = Math.floor(Math.random() * 80) + 1;
+      setRule(rules.empty, length > 0, "Er moet überhaupt iets ingevuld zijn.");
+      setRule(rules.min, length >= 30, "Minimaal 30 tekens gebruiken.");
+      setRule(rules.max, length <= 220 && length > 0, "Maximaal 220 tekens gebruiken. We hebben ook niet de hele dag.");
+      setRule(rules.special, /[!@#$%^&*(),.?":{}|<>]/.test(complaint), "Minimaal één speciaal teken gebruiken, zoals !, ?, @ of #.");
+      setRule(rules.uppercase, /[A-Z]/.test(complaint), "Minimaal één hoofdletter gebruiken. Klaag met klasse.");
+      setRule(rules.angry, hasAngryWord(complaint), "Minimaal één klachtwaardig woord gebruiken.");
+    }
 
-        showPopup(
-          "Bijna.",
-          randomValidation.replace("{amount}", fakeAmount)
-        );
-        return;
+    function setRule(element, passed, text) {
+      if (passed) {
+        element.classList.add("good");
+        element.textContent = "✔ " + text;
+      } else {
+        element.classList.remove("good");
+        element.textContent = "✖ " + text;
       }
+    }
 
-      const randomFailedMessage = failedMessages[
-        Math.floor(Math.random() * failedMessages.length)
-      ];
+    function hasAngryWord(text) {
+      const lowerText = text.toLowerCase();
 
-      showPopup("Versturen mislukt.", randomFailedMessage);
-    });
+      return angryWords.some(word => lowerText.includes(word));
+    }
 
-    function showPopup(title, message) {
+    function submitComplaintFake() {
+      submitButton.classList.add("loading");
+      submitButton.textContent = "Klacht wordt verstuurd...";
+
+      complaintText.disabled = true;
+      submitButton.disabled = true;
+
+      setTimeout(() => {
+        complaintWasSent = true;
+
+        submitButton.classList.remove("loading");
+        submitButton.classList.add("sent");
+        submitButton.textContent = "Verstuurd";
+
+        const randomSuccess =
+          successMessages[Math.floor(Math.random() * successMessages.length)];
+
+        showPopup("Verstuurd.", randomSuccess, true);
+      }, 1800);
+    }
+
+    function resetButtonIfNeeded() {
+      if (!complaintWasSent) {
+        submitButton.classList.remove("loading", "sent");
+        submitButton.textContent = "Verstuur klacht";
+        submitButton.disabled = false;
+      }
+    }
+
+    function showPopup(title, message, success) {
       popupTitle.textContent = title;
       popupMessage.textContent = message;
+
+      if (success) {
+        popup.classList.add("success");
+      } else {
+        popup.classList.remove("success");
+      }
+
       popupBackground.style.display = "flex";
     }
 
@@ -505,6 +607,8 @@
         popupBackground.style.display = "none";
       }
     });
+
+    updateRules();
 
     /* TIJD VERSPILD */
     const wasteTimeText = document.getElementById("waste-time");
