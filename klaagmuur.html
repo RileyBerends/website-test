@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klaagmuur</title>
+
+  <style>
+    /* ALGEMEEN */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #7c3aed);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 750px;
+      padding: 40px 0;
+    }
+
+    h1 {
+      font-size: 46px;
+      margin-bottom: 12px;
+      color: #facc15;
+    }
+
+    p {
+      color: #e5e7eb;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    /* TIJD VERSPILD */
+    #waste-timer {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      background: rgba(17, 24, 39, 0.9);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 9000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    #waste-time {
+      color: #facc15;
+    }
+
+    /* TERUGKNOP */
+    .back-button {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      background: white;
+      color: #111827;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: bold;
+      z-index: 5002;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .back-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* FORMULIER */
+    .complaint-box {
+      background: white;
+      color: #111827;
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      box-sizing: border-box;
+      resize: vertical;
+      border: 2px solid #d1d5db;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+    }
+
+    .counter {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #6b7280;
+      text-align: right;
+    }
+
+    .submit-button {
+      margin-top: 18px;
+      width: 100%;
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 16px 22px;
+      border-radius: 16px;
+      font-size: 19px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+      transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+
+    .submit-button:hover {
+      background: #dc2626;
+      transform: scale(1.02);
+    }
+
+    .submit-button:active {
+      transform: scale(0.95) rotate(-1deg);
+      box-shadow: 0 5px 16px rgba(0,0,0,0.25);
+    }
+
+    .shake {
+      animation: shake 0.35s ease;
+    }
+
+    @keyframes shake {
+      0% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-8px);
+      }
+
+      50% {
+        transform: translateX(8px);
+      }
+
+      75% {
+        transform: translateX(-5px);
+      }
+
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    /* POPUP */
+    #popup-background {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      padding: 20px;
+    }
+
+    #popup {
+      background: white;
+      color: #111827;
+      width: 100%;
+      max-width: 460px;
+      border-radius: 22px;
+      padding: 26px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      text-align: center;
+      animation: popupIn 0.25s ease;
+    }
+
+    #popup h2 {
+      margin-top: 0;
+      color: #ef4444;
+    }
+
+    #popup-message {
+      color: #374151;
+      font-size: 17px;
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    #popup button {
+      background: #111827;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #popup button:hover {
+      background: #374151;
+    }
+
+    @keyframes popupIn {
+      from {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* MOBIEL */
+    @media (max-width: 600px) {
+      #waste-timer {
+        left: 12px;
+        bottom: 12px;
+        font-size: 12px;
+        padding: 10px 12px;
+      }
+
+      .back-button {
+        top: 12px;
+        left: 12px;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      p {
+        font-size: 16px;
+      }
+
+      .complaint-box {
+        padding: 22px;
+      }
+
+      textarea {
+        min-height: 140px;
+      }
+
+      .container {
+        padding-top: 80px;
+        padding-bottom: 90px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Tijd verspild -->
+  <div id="waste-timer">
+    Tijd verspild: <span id="waste-time">0 seconden</span>
+  </div>
+
+  <!-- Terugknop -->
+  <a class="back-button" href="index.html">← Terug</a>
+
+  <div class="container">
+    <h1>Klaagmuur</h1>
+
+    <p>
+      Mocht je een klacht hebben over deze website, dan kun je contact opnemen met de eigenaar.
+      Alvast bedankt voor je moeite. Er wordt waarschijnlijk niks mee gedaan.
+    </p>
+
+    <div class="complaint-box">
+      <form id="complaint-form">
+        <label for="complaint-text">Typ hier je klacht:</label>
+
+        <textarea
+          id="complaint-text"
+          placeholder="Bijvoorbeeld: deze website heeft mijn tijd verspild..."
+        ></textarea>
+
+        <div class="counter">
+          Tekens: <span id="character-count">0</span>
+        </div>
+
+        <button class="submit-button" type="submit">
+          Verstuur klacht
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup-background">
+    <div id="popup">
+      <h2 id="popup-title">Oeps.</h2>
+      <p id="popup-message">Er is iets fout gegaan.</p>
+      <button id="popup-close">Oké dan</button>
+    </div>
+  </div>
+
+  <script>
+    /* KLAAGMUUR */
+    const complaintForm = document.getElementById("complaint-form");
+    const complaintText = document.getElementById("complaint-text");
+    const characterCount = document.getElementById("character-count");
+
+    const popupBackground = document.getElementById("popup-background");
+    const popupTitle = document.getElementById("popup-title");
+    const popupMessage = document.getElementById("popup-message");
+    const popupClose = document.getElementById("popup-close");
+
+    const submitButton = document.querySelector(".submit-button");
+
+    const failedMessages = [
+      "Oeps, mislukt. Geen internetverbinding. Probeer later opnieuw. Of niet.",
+      "Wat een kutklacht. Deze verstuur ik niet.",
+      "Je klacht is succesvol genegeerd.",
+      "Fout 404: interesse niet gevonden.",
+      "De eigenaar is momenteel emotioneel niet beschikbaar.",
+      "Je klacht is doorgestuurd naar de prullenbak. De prullenbak heeft geweigerd.",
+      "Mislukt. De website vond je klacht te dramatisch.",
+      "Sorry, het klaagsysteem heeft vandaag vrij genomen.",
+      "Je klacht is bijna verstuurd. Grapje.",
+      "De server zei: nee.",
+      "Je klacht is ontvangen, gelezen door niemand, en direct vergeten.",
+      "Deze klacht had ook gewoon een diepe zucht kunnen zijn.",
+      "Melding mislukt: de website accepteert vandaag alleen complimenten.",
+      "Je klacht bevat te veel emotie en te weinig bier.",
+      "De eigenaar heeft je klacht niet gelezen, maar is het waarschijnlijk oneens.",
+      "Deze klacht is technisch gezien tekst, maar verder weinig.",
+      "Versturen mislukt. Reden: vibes waren niet goed.",
+      "Je klacht is geweigerd wegens gebrek aan gezelligheid.",
+      "Klacht niet verzonden. Het systeem voelde zich aangevallen.",
+      "Deze klacht is opgeslagen in het mapje: later misschien nooit.",
+      "We hebben je klacht beoordeeld en besloten hem te negeren.",
+      "De website is niet boos, alleen teleurgesteld in je klacht.",
+      "Fout 500: de klaagmachine is oververhit.",
+      "Je klacht kon niet worden verstuurd omdat Mercury in retrograde staat. Denk ik.",
+      "De klacht is onderweg. Naar nergens.",
+      "Mislukt. Je had ook gewoon kunnen lachen.",
+      "Deze klacht voldoet niet aan onze extreem vage eisen.",
+      "Je klacht is niet verstuurd omdat de knop daar geen zin in had.",
+      "Klacht geweigerd. Probeer het opnieuw met meer flair.",
+      "Je klacht is doorgestuurd naar de afdeling onzin. Die bestaat niet.",
+      "De website heeft je klacht gelezen en zei: mwah.",
+      "Deze klacht is zo slecht dat zelfs de timer schaamte voelt.",
+      "Oeps. Je klacht is verdwaald in de Achterhoek.",
+      "Je klacht kon niet worden opgeslagen. De database is gaan wandelen.",
+      "Het systeem accepteert alleen klachten op dinsdagen met volle maan.",
+      "Je klacht is te serieus voor deze website.",
+      "De klacht is niet verstuurd. Reden: eigenaar had geen zin.",
+      "Bedankt voor je klacht. Helaas is bedanken het enige wat we doen.",
+      "Je klacht is afgewezen wegens overdreven verwachtingen.",
+      "Deze website draait op schik en bier, niet op klantenservice."
+    ];
+
+    const validationMessages = [
+      "Je moet nog {amount} tekens gebruiken voordat deze klacht professioneel genoeg is.",
+      "Je hebt {amount} tekens te veel gebruikt. Korter klagen graag.",
+      "Je klacht mist minimaal één uitroepteken. Klaag met gevoel.",
+      "Je klacht mist een vraagteken. Ben je wel verward genoeg?",
+      "Je klacht moet minimaal één speciaal teken bevatten. Bijvoorbeeld @, # of %. Waarom? Geen idee.",
+      "Je klacht bevat te weinig drama. Voeg meer verontwaardiging toe.",
+      "Je klacht is te netjes. Dit is een klaagmuur, geen sollicitatiebrief.",
+      "Je klacht gebruikt te weinig hoofdletters. SCHREEUW EENS EEN BEETJE.",
+      "Je klacht bevat geen punt. Zelfs frustratie heeft interpunctie nodig.",
+      "Je klacht is grammaticaal verdacht, maar ik kan niet uitleggen waarom.",
+      "Je klacht is te kort om serieus genegeerd te worden.",
+      "Je klacht is te lang om met droge ogen te negeren.",
+      "Je moet eerst aantonen dat je echt boos bent.",
+      "Je klacht mist het woord 'belachelijk'. Dat is verplicht. Vanaf nu.",
+      "Je klacht is niet passief-agressief genoeg.",
+      "Je klacht moet minimaal één spatie bevatten. Ademhalen mag.",
+      "Je klacht lijkt op feedback. Dat ondersteunen we hier niet.",
+      "Je klacht is bijna goed, maar helaas bijna telt niet.",
+      "Je klacht bevat te weinig nutteloze details.",
+      "Je klacht is afgekeurd door een denkbeeldige commissie."
+    ];
+
+    complaintText.addEventListener("input", () => {
+      characterCount.textContent = complaintText.value.length;
+    });
+
+    complaintForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const complaint = complaintText.value.trim();
+      const length = complaint.length;
+
+      submitButton.classList.remove("shake");
+      void submitButton.offsetWidth;
+      submitButton.classList.add("shake");
+
+      if (length === 0) {
+        showPopup(
+          "Nee hè.",
+          "Je moet wel eerst iets typen. Ik kan geen lege klacht negeren."
+        );
+        return;
+      }
+
+      const randomRule = Math.floor(Math.random() * 9);
+
+      if (length < 20 && randomRule <= 4) {
+        const needed = 20 - length;
+        showPopup(
+          "Te weinig geklaag.",
+          "Je moet nog " + needed + " tekens gebruiken voordat ik dit kan negeren."
+        );
+        return;
+      }
+
+      if (length > 250 && randomRule <= 4) {
+        const tooMuch = length - 250;
+        showPopup(
+          "Te veel geklaag.",
+          "Je hebt " + tooMuch + " tekens te veel gebruikt. Ik ga dit natuurlijk niet allemaal lezen."
+        );
+        return;
+      }
+
+      if (!complaint.includes("!") && randomRule === 5) {
+        showPopup(
+          "Onvoldoende boosheid.",
+          "Je klacht mist een uitroepteken. Klaag met meer overtuiging."
+        );
+        return;
+      }
+
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(complaint) && randomRule === 6) {
+        showPopup(
+          "Te normaal.",
+          "Je moet nog minimaal één speciaal teken gebruiken. Dit is compleet willekeurig, maar wel verplicht."
+        );
+        return;
+      }
+
+      if (!/[A-Z]/.test(complaint) && randomRule === 7) {
+        showPopup(
+          "Te rustig.",
+          "Je klacht bevat geen hoofdletters. Als je klaagt, doe het dan met passie."
+        );
+        return;
+      }
+
+      const shouldValidationAnnoy = Math.random() < 0.35;
+
+      if (shouldValidationAnnoy) {
+        const randomValidation = validationMessages[
+          Math.floor(Math.random() * validationMessages.length)
+        ];
+
+        const fakeAmount = Math.floor(Math.random() * 80) + 1;
+
+        showPopup(
+          "Bijna.",
+          randomValidation.replace("{amount}", fakeAmount)
+        );
+        return;
+      }
+
+      const randomFailedMessage = failedMessages[
+        Math.floor(Math.random() * failedMessages.length)
+      ];
+
+      showPopup("Versturen mislukt.", randomFailedMessage);
+    });
+
+    function showPopup(title, message) {
+      popupTitle.textContent = title;
+      popupMessage.textContent = message;
+      popupBackground.style.display = "flex";
+    }
+
+    popupClose.addEventListener("click", () => {
+      popupBackground.style.display = "none";
+    });
+
+    popupBackground.addEventListener("click", (event) => {
+      if (event.target === popupBackground) {
+        popupBackground.style.display = "none";
+      }
+    });
+
+    /* TIJD VERSPILD */
+    const wasteTimeText = document.getElementById("waste-time");
+
+    let totalWastedSeconds = Number(localStorage.getItem("totalWastedSeconds")) || 0;
+
+    function showWasteTimer() {
+      const hours = Math.floor(totalWastedSeconds / 3600);
+      const minutes = Math.floor((totalWastedSeconds % 3600) / 60);
+      const seconds = totalWastedSeconds % 60;
+
+      if (hours > 0) {
+        wasteTimeText.textContent =
+          hours + " uur, " + minutes + " minuten en " + seconds + " seconden";
+      } else if (minutes > 0) {
+        wasteTimeText.textContent =
+          minutes + " minuten en " + seconds + " seconden";
+      } else {
+        wasteTimeText.textContent = seconds + " seconden";
+      }
+    }
+
+    showWasteTimer();
+
+    setInterval(() => {
+      totalWastedSeconds++;
+      localStorage.setItem("totalWastedSeconds", totalWastedSeconds);
+      showWasteTimer();
+    }, 1000);
+  </script>
+
+</body>
+</html>
