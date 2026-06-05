@@ -1,4 +1,4 @@
-# rileyberends20.github.io
+# rileyberends.github.io
 
 Wat geinig dat je mijn github pagina hebt gevonden van mijn website.
 Als je toch denkt van, poe he, wat een mooie website dat wil ik ook.
@@ -7,4 +7,6 @@ Vraag dan AI ernaar.
 Fijne dag :)
 
 
-LET OP, DIT IS EEN OEFEN REPO.
+LET OP, DIT IS EEN OEFEN REPO.  
+
+De oefenwebsite is te bereiken via rileyberends.github.io/website-test
