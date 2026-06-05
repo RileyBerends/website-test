@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Riley Berends</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #7c3aed);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 750px;
+      padding: 40px 0;
+    }
+
+    .error-code {
+      font-size: 120px;
+      font-weight: bold;
+      margin: 0;
+      color: #facc15;
+      text-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    h1 {
+      font-size: 38px;
+      margin: 10px 0 18px;
+    }
+
+    p {
+      font-size: 20px;
+      line-height: 1.6;
+      color: #e5e7eb;
+      margin-bottom: 32px;
+    }
+
+    .poop {
+      font-size: 90px;
+      display: inline-block;
+      animation: floatPoop 2s ease-in-out infinite;
+      filter: drop-shadow(0 14px 16px rgba(0,0,0,0.3));
+      margin-bottom: 18px;
+    }
+
+    @keyframes floatPoop {
+      0% {
+        transform: translateY(0) rotate(-4deg);
+      }
+
+      50% {
+        transform: translateY(-14px) rotate(4deg);
+      }
+
+      100% {
+        transform: translateY(0) rotate(-4deg);
+      }
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    a {
+      background: white;
+      color: #111827;
+      text-decoration: none;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-weight: bold;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      transition: transform 0.2s ease;
+    }
+
+    a:hover {
+      transform: scale(1.05);
+    }
+
+    .danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    @media (max-width: 600px) {
+      .error-code {
+        font-size: 82px;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      p {
+        font-size: 17px;
+      }
+
+      .poop {
+        font-size: 70px;
+      }
+
+      a {
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="poop">💩</div>
+
+    <div class="error-code">404</div>
+
+    <h1>Okey, er is iets fout gegaan.</h1>
+
+    <p>
+      Maar ik weet bijna zeker dat jij gewoon iets verkeerd hebt gedaan.<br>
+      Ik doe dat namelijk niet :)
+    </p>
+
+    <div class="buttons">
+      <a href="/">← Terug naar home</a>
+      <a class="danger" href="/rickroll.html">Niet klikken</a>
+    </div>
+  </div>
+</body>
+</html>
