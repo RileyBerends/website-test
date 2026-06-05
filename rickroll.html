@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Niet klikken</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 850px;
+    }
+
+    h1 {
+      font-size: 46px;
+      margin-bottom: 12px;
+      color: #facc15;
+    }
+
+    p {
+      color: #d1d5db;
+      font-size: 18px;
+      margin-bottom: 24px;
+    }
+
+    iframe {
+      width: 100%;
+      max-width: 760px;
+      height: 430px;
+      border: none;
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+      background: black;
+    }
+
+    .buttons {
+      margin-top: 25px;
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    a {
+      background: white;
+      color: #111827;
+      text-decoration: none;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-weight: bold;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      transition: transform 0.2s ease;
+    }
+
+    a:hover {
+      transform: scale(1.05);
+    }
+
+    .danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 34px;
+      }
+
+      p {
+        font-size: 16px;
+      }
+
+      iframe {
+        height: 220px;
+      }
+
+      a {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Je bent gerickrolld.</h1>
+    <p>Je had ook gewoon niet kunnen klikken.</p>
+
+    <iframe
+      src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+      title="Rickroll"
+      allow="autoplay; encrypted-media"
+      allowfullscreen>
+    </iframe>
+
+    <div class="buttons">
+      <a href="index.html">← Terug naar home</a>
+
+      <a
+        class="danger"
+        href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        target="_blank">
+        Open de schade in YouTube
+      </a>
+    </div>
+  </div>
+</body>
+</html>
