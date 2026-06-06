@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagina bouwer</title>
+
+  <style>
+    /* ALGEMEEN */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #7c3aed);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .page-wrapper {
+      width: 90%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 90px 0 120px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 46px;
+      margin-bottom: 10px;
+      color: #facc15;
+    }
+
+    .intro {
+      text-align: center;
+      color: #e5e7eb;
+      font-size: 18px;
+      margin-bottom: 35px;
+      line-height: 1.5;
+    }
+
+    /* TERUGKNOP */
+    .back-button {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      background: white;
+      color: #111827;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: bold;
+      z-index: 5002;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .back-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* TIJD VERSPILD */
+    #waste-timer {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      background: rgba(17, 24, 39, 0.9);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 9000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    #waste-time {
+      color: #facc15;
+    }
+
+    /* LAYOUT */
+    .builder-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 26px;
+      align-items: start;
+    }
+
+    .builder-panel,
+    .preview-panel {
+      background: rgba(255,255,255,0.96);
+      color: #111827;
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    }
+
+    .builder-panel h2,
+    .preview-panel h2 {
+      margin-top: 0;
+      color: #7c3aed;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 2px solid #d1d5db;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-family: Arial, sans-serif;
+      outline: none;
+      background: white;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+    }
+
+    input[type="range"] {
+      padding: 0;
+      box-shadow: none;
+      border: none;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .builder-button {
+      flex: 1;
+      min-width: 150px;
+      border: none;
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+      background: #7c3aed;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .builder-button:hover {
+      transform: scale(1.03);
+      background: #6d28d9;
+    }
+
+    .builder-button.red {
+      background: #ef4444;
+    }
+
+    .builder-button.red:hover {
+      background: #dc2626;
+    }
+
+    .builder-button.gray {
+      background: #374151;
+    }
+
+    .builder-button.gray:hover {
+      background: #1f2937;
+    }
+
+    /* PREVIEW */
+    #preview-card {
+      position: relative;
+      min-height: 360px;
+      padding: 34px;
+      border-radius: 22px;
+      text-align: center;
+      overflow: hidden;
+      transition:
+        transform 0.3s ease,
+        background 0.3s ease,
+        color 0.3s ease,
+        border-radius 0.3s ease,
+        box-shadow 0.3s ease;
+    }
+
+    #preview-emoji {
+      font-size: 58px;
+      margin-bottom: 12px;
+    }
+
+    #preview-title {
+      font-size: 36px;
+      margin: 8px 0;
+      word-wrap: break-word;
+    }
+
+    #preview-subtitle {
+      font-size: 20px;
+      margin: 8px 0 18px;
+      opacity: 0.85;
+      word-wrap: break-word;
+    }
+
+    #preview-text {
+      font-size: 17px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    #preview-special-button {
+      display: none;
+      margin-top: 24px;
+      border: none;
+      border-radius: 15px;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: #ef4444;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    #preview-special-button:hover {
+      transform: scale(1.05);
+      background: #dc2626;
+    }
+
+    #rating-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 16px;
+      background: #f3f4f6;
+      color: #111827;
+      display: none;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    /* PREVIEW ACHTERGRONDEN */
+    .bg-purple {
+      background: linear-gradient(135deg, #111827, #7c3aed);
+      color: white;
+    }
+
+    .bg-red {
+      background: linear-gradient(135deg, #450a0a, #ef4444);
+      color: white;
+    }
+
+    .bg-black {
+      background: linear-gradient(135deg, #000000, #052e16);
+      color: #22c55e;
+    }
+
+    .bg-rainbow {
+      background: linear-gradient(135deg, red, orange, yellow, green, blue, purple);
+      color: white;
+    }
+
+    .bg-gray {
+      background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+      color: #111827;
+    }
+
+    .bg-green {
+      background: linear-gradient(135deg, #052e16, #22c55e);
+      color: white;
+    }
+
+    .bg-nightclub {
+      background:
+        radial-gradient(circle at 20% 20%, #f0abfc, transparent 25%),
+        radial-gradient(circle at 80% 30%, #22d3ee, transparent 25%),
+        linear-gradient(135deg, #020617, #581c87);
+      color: white;
+    }
+
+    /* PREVIEW STIJLEN */
+    .style-normal {
+      border: 3px solid rgba(255,255,255,0.35);
+      box-shadow: 0 14px 35px rgba(0,0,0,0.28);
+    }
+
+    .style-serious {
+      border: 4px solid #111827;
+      border-radius: 4px !important;
+      box-shadow: none;
+    }
+
+    .style-kids {
+      border: 6px dashed #facc15;
+      box-shadow: 0 0 0 8px rgba(239,68,68,0.25);
+    }
+
+    .style-hacker {
+      border: 2px solid #22c55e;
+      box-shadow: 0 0 25px rgba(34,197,94,0.5);
+      text-shadow: 0 0 8px rgba(34,197,94,0.7);
+    }
+
+    .style-office {
+      border: 1px solid #6b7280;
+      border-radius: 0 !important;
+      box-shadow: none;
+    }
+
+    .style-luxury {
+      border: 3px solid #facc15;
+      box-shadow: 0 18px 42px rgba(250,204,21,0.25);
+    }
+
+    .style-chaos {
+      border: 6px dotted #facc15;
+      box-shadow: 0 0 35px rgba(239,68,68,0.55);
+    }
+
+    /* FONT STIJLEN */
+    .font-normal {
+      font-family: Arial, sans-serif;
+    }
+
+    .font-big {
+      font-family: Arial, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 900;
+    }
+
+    .font-serif {
+      font-family: Georgia, serif;
+    }
+
+    .font-mono {
+      font-family: "Courier New", monospace;
+    }
+
+    .font-comic {
+      font-family: "Comic Sans MS", "Trebuchet MS", cursive;
+    }
+
+    /* EFFECTEN */
+    .effect-shake {
+      animation: shakePreview 0.4s infinite;
+    }
+
+    .effect-spin {
+      animation: spinPreview 4s linear infinite;
+    }
+
+    .effect-rainbow {
+      animation: rainbowText 1.5s linear infinite;
+    }
+
+    .effect-alarm {
+      animation: alarmFlash 0.55s infinite;
+    }
+
+    .effect-crooked {
+      transform: rotate(-4deg) scale(0.98);
+    }
+
+    .destroyed {
+      transform: rotate(6deg) scale(0.9) !important;
+      filter: blur(1px) contrast(1.4);
+    }
+
+    @keyframes shakePreview {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes spinPreview {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes rainbowText {
+      0% { color: #ef4444; }
+      25% { color: #facc15; }
+      50% { color: #22c55e; }
+      75% { color: #38bdf8; }
+      100% { color: #ef4444; }
+    }
+
+    @keyframes alarmFlash {
+      0% { filter: brightness(1); }
+      50% { filter: brightness(1.8); }
+      100% { filter: brightness(1); }
+    }
+
+    /* POPUP */
+    #popup-background {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.65);
+      z-index: 10000;
+      padding: 20px;
+    }
+
+    #popup {
+      max-width: 440px;
+      width: 100%;
+      background: white;
+      color: #111827;
+      border-radius: 22px;
+      padding: 26px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      animation: popupIn 0.25s ease;
+    }
+
+    #popup h2 {
+      margin-top: 0;
+      color: #7c3aed;
+    }
+
+    #popup-message {
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    #popup button {
+      margin-top: 12px;
+      background: #111827;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    @keyframes popupIn {
+      from {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* MOBIEL */
+    @media (max-width: 800px) {
+      .builder-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .page-wrapper {
+        padding-top: 85px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .back-button {
+        top: 12px;
+        left: 12px;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      #waste-timer {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        width: auto;
+        max-width: none;
+        box-sizing: border-box;
+        font-size: 12px;
+        padding: 10px 12px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      .intro {
+        font-size: 16px;
+      }
+
+      .builder-panel,
+      .preview-panel {
+        padding: 20px;
+      }
+
+      #preview-card {
+        padding: 24px;
+      }
+
+      #preview-title {
+        font-size: 28px;
+      }
+
+      #preview-subtitle {
+        font-size: 18px;
+      }
+
+      #preview-emoji {
+        font-size: 48px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Tijd verspild -->
+  <div id="waste-timer">
+    Tijd verspild: <span id="waste-time">0 seconden</span>
+  </div>
+
+  <!-- Terugknop -->
+  <a class="back-button" href="index.html">← Terug</a>
+
+  <div class="page-wrapper">
+    <h1>Pagina bouwer</h1>
+
+    <p class="intro">
+      Bouw je eigen pagina. Kies wat dingen, klik op de knop en aanschouw je meesterwerk.
+      Wij zijn niet aansprakelijk voor oogschade.
+    </p>
+
+    <div class="builder-layout">
+
+      <!-- BOUWER -->
+      <div class="builder-panel">
+        <h2>Instellingen</h2>
+
+        <div class="form-group">
+          <label for="title-input">Titel van je pagina:</label>
+          <input id="title-input" type="text" maxlength="50" value="Mijn geweldige pagina">
+        </div>
+
+        <div class="form-group">
+          <label for="subtitle-input">Ondertitel:</label>
+          <input id="subtitle-input" type="text" maxlength="80" value="Dit is waarschijnlijk een slecht idee">
+        </div>
+
+        <div class="form-group">
+          <label for="text-input">Hoofdtekst:</label>
+          <textarea id="text-input">Welkom op mijn zelfgemaakte pagina. Ik heb geen idee wat ik doe, maar het ziet er belangrijk uit.</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="background-choice">Achtergrond:</label>
+          <select id="background-choice">
+            <option value="purple">Paars mysterie</option>
+            <option value="red">Rood alarm</option>
+            <option value="black">Zwart hackerhol</option>
+            <option value="rainbow">Regenboog ellende</option>
+            <option value="gray">Saaie kantoorgrijs</option>
+            <option value="green">Giftig groen</option>
+            <option value="nightclub">Nachtclub zonder vergunning</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="style-choice">Stijl:</label>
+          <select id="style-choice">
+            <option value="normal">Normaal</option>
+            <option value="serious">Veel te serieus</option>
+            <option value="kids">Kinderfeestje</option>
+            <option value="hacker">Hacker uit een slechte film</option>
+            <option value="office">Gemeentewebsite uit 2007</option>
+            <option value="luxury">Luxe maar nep</option>
+            <option value="chaos">Complete chaos</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="font-choice">Lettertype:</label>
+          <select id="font-choice">
+            <option value="normal">Normaal</option>
+            <option value="big">Grote schreeuwletters</option>
+            <option value="serif">Veel te officieel</option>
+            <option value="mono">Hacker-lettertype</option>
+            <option value="comic">Comic Sans-achtig</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="emoji-choice">Emoji-mascotte:</label>
+          <select id="emoji-choice">
+            <option value="💩">💩 Poep</option>
+            <option value="🍺">🍺 Bier</option>
+            <option value="🚨">🚨 Alarm</option>
+            <option value="🐸">🐸 Kikker</option>
+            <option value="🧀">🧀 Kaas</option>
+            <option value="🔥">🔥 Vuur</option>
+            <option value="🤡">🤡 Clown</option>
+            <option value="🐔">🐔 Kip</option>
+            <option value="🧠">🧠 Brein</option>
+            <option value="🪩">🪩 Disco</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="button-choice">Speciale knop:</label>
+          <select id="button-choice">
+            <option value="none">Geen knop</option>
+            <option value="panic">Rode paniekknop</option>
+            <option value="pretty">Maak mooier</option>
+            <option value="ugly">Maak lelijker</option>
+            <option value="professional">Professioneel maken</option>
+            <option value="destroy">Website slopen</option>
+            <option value="compliment">Geef mij compliment</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="effect-choice">Special effect:</label>
+          <select id="effect-choice">
+            <option value="none">Geen effect</option>
+            <option value="shake">Schudden</option>
+            <option value="spin">Draaien</option>
+            <option value="rainbow">Regenboog tekst</option>
+            <option value="alarm">Alarmmodus</option>
+            <option value="crooked">Alles scheef</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="chaos-level">Chaosniveau: <span id="chaos-value">20</span>%</label>
+          <input type="range" id="chaos-level" min="0" max="100" value="20">
+        </div>
+
+        <div class="button-row">
+          <button class="builder-button" id="build-button">Maak mijn pagina</button>
+          <button class="builder-button red" id="worse-button">Maak hem erger</button>
+          <button class="builder-button gray" id="reset-button">Reset deze ellende</button>
+        </div>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="preview-panel">
+        <h2>Preview van jouw ramp</h2>
+
+        <div id="preview-card" class="bg-purple style-normal font-normal">
+          <div id="preview-emoji">💩</div>
+          <h2 id="preview-title">Mijn geweldige pagina</h2>
+          <h3 id="preview-subtitle">Dit is waarschijnlijk een slecht idee</h3>
+          <p id="preview-text">Welkom op mijn zelfgemaakte pagina. Ik heb geen idee wat ik doe, maar het ziet er belangrijk uit.</p>
+          <button id="preview-special-button">Klik mij</button>
+        </div>
+
+        <div id="rating-box"></div>
+
+        <div class="button-row">
+          <button class="builder-button" id="rating-button">Geef beoordeling</button>
+          <button class="builder-button gray" id="fake-download-button">Download niet</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup-background">
+    <div id="popup">
+      <h2 id="popup-title">Melding</h2>
+      <p id="popup-message">Er is iets gebeurd. Waarschijnlijk niks nuttigs.</p>
+      <button id="popup-close">Oké dan</button>
+    </div>
+  </div>
+
+  <script>
+    /* ELEMENTEN */
+    const titleInput = document.getElementById("title-input");
+    const subtitleInput = document.getElementById("subtitle-input");
+    const textInput = document.getElementById("text-input");
+
+    const backgroundChoice = document.getElementById("background-choice");
+    const styleChoice = document.getElementById("style-choice");
+    const fontChoice = document.getElementById("font-choice");
+    const emojiChoice = document.getElementById("emoji-choice");
+    const buttonChoice = document.getElementById("button-choice");
+    const effectChoice = document.getElementById("effect-choice");
+    const chaosLevel = document.getElementById("chaos-level");
+    const chaosValue = document.getElementById("chaos-value");
+
+    const buildButton = document.getElementById("build-button");
+    const worseButton = document.getElementById("worse-button");
+    const resetButton = document.getElementById("reset-button");
+    const ratingButton = document.getElementById("rating-button");
+    const fakeDownloadButton = document.getElementById("fake-download-button");
+
+    const previewCard = document.getElementById("preview-card");
+    const previewEmoji = document.getElementById("preview-emoji");
+    const previewTitle = document.getElementById("preview-title");
+    const previewSubtitle = document.getElementById("preview-subtitle");
+    const previewText = document.getElementById("preview-text");
+    const previewSpecialButton = document.getElementById("preview-special-button");
+    const ratingBox = document.getElementById("rating-box");
+
+    const popupBackground = document.getElementById("popup-background");
+    const popupTitle = document.getElementById("popup-title");
+    const popupMessage = document.getElementById("popup-message");
+    const popupClose = document.getElementById("popup-close");
+
+    const ratings = [
+      "2/10 - Mijn ogen hebben pauze nodig.",
+      "4/10 - Niet goed, wel dapper.",
+      "6/10 - Verrassend minder erg dan verwacht.",
+      "1/10 - Dit had offline moeten blijven.",
+      "7/10 - Ik haat dat ik dit best leuk vind.",
+      "5/10 - Precies gemiddeld teleurstellend.",
+      "3/10 - De browser heeft even diep gezucht.",
+      "8/10 - Onverwacht acceptabel. Verdacht.",
+      "0/10 - Dit is geen pagina, dit is een waarschuwing.",
+      "6.9/10 - Nice, maar ook niet."
+    ];
+
+    const popupMessages = {
+      panic: "Paniek succesvol gestart. Niemand weet waarom.",
+      pretty: "Mooier maken mislukt. De pagina heeft tegengewerkt.",
+      ugly: "Gelukt. Hij is nu aantoonbaar lelijker.",
+      professional: "Professioneel maken mislukt. Deze pagina is niet meer te redden.",
+      destroy: "Website gesloopt. Dit was waarschijnlijk de bedoeling.",
+      compliment: "Je pagina is... aanwezig. En dat is ook iets.",
+      download: "Download mislukt. Gelukkig maar.",
+      build: "Je pagina is gebouwd. De schade is zichtbaar in de preview.",
+      worse: "Hij is erger gemaakt. Waarom wilde je dit?",
+      reset: "De ellende is gereset. Tijd om opnieuw fouten te maken."
+    };
+
+    const allInputs = [
+      titleInput,
+      subtitleInput,
+      textInput,
+      backgroundChoice,
+      styleChoice,
+      fontChoice,
+      emojiChoice,
+      buttonChoice,
+      effectChoice,
+      chaosLevel
+    ];
+
+    allInputs.forEach(input => {
+      input.addEventListener("input", updatePreview);
+      input.addEventListener("change", updatePreview);
+    });
+
+    buildButton.addEventListener("click", () => {
+      updatePreview();
+      showPopup("Gebouwd.", popupMessages.build);
+    });
+
+    worseButton.addEventListener("click", () => {
+      makeWorse();
+      showPopup("Erger gemaakt.", popupMessages.worse);
+    });
+
+    resetButton.addEventListener("click", () => {
+      resetBuilder();
+      showPopup("Reset.", popupMessages.reset);
+    });
+
+    ratingButton.addEventListener("click", () => {
+      const randomRating = ratings[Math.floor(Math.random() * ratings.length)];
+      ratingBox.textContent = randomRating;
+      ratingBox.style.display = "block";
+    });
+
+    fakeDownloadButton.addEventListener("click", () => {
+      showPopup("Download niet.", popupMessages.download);
+    });
+
+    previewSpecialButton.addEventListener("click", () => {
+      const choice = buttonChoice.value;
+
+      if (choice === "panic") {
+        showPopup("Paniek.", popupMessages.panic);
+        previewCard.classList.add("effect-alarm");
+      }
+
+      if (choice === "pretty") {
+        showPopup("Mislukt.", popupMessages.pretty);
+        chaosLevel.value = Math.min(100, Number(chaosLevel.value) + 25);
+        styleChoice.value = "chaos";
+        effectChoice.value = "crooked";
+        updatePreview();
+      }
+
+      if (choice === "ugly") {
+        showPopup("Gelukt.", popupMessages.ugly);
+        makeWorse();
+      }
+
+      if (choice === "professional") {
+        showPopup("Afgekeurd.", popupMessages.professional);
+      }
+
+      if (choice === "destroy") {
+        showPopup("Gesloopt.", popupMessages.destroy);
+        previewCard.classList.add("destroyed");
+      }
+
+      if (choice === "compliment") {
+        showPopup("Compliment.", popupMessages.compliment);
+      }
+    });
+
+    function updatePreview() {
+      const title = titleInput.value.trim() || "Naamloze pagina";
+      const subtitle = subtitleInput.value.trim() || "Geen ondertitel. Spannend.";
+      const text = textInput.value.trim() || "Hier had tekst kunnen staan, maar zelfs dat ging mis.";
+
+      previewTitle.textContent = title;
+      previewSubtitle.textContent = subtitle;
+      previewText.textContent = text;
+      previewEmoji.textContent = emojiChoice.value;
+
+      chaosValue.textContent = chaosLevel.value;
+
+      previewCard.className = "";
+      previewCard.id = "preview-card";
+
+      previewCard.classList.add("bg-" + backgroundChoice.value);
+      previewCard.classList.add("style-" + styleChoice.value);
+      previewCard.classList.add("font-" + fontChoice.value);
+
+      const effect = effectChoice.value;
+
+      if (effect !== "none") {
+        previewCard.classList.add("effect-" + effect);
+      }
+
+      applyChaos();
+      updateSpecialButton();
+    }
+
+    function updateSpecialButton() {
+      const choice = buttonChoice.value;
+
+      if (choice === "none") {
+        previewSpecialButton.style.display = "none";
+        return;
+      }
+
+      previewSpecialButton.style.display = "inline-block";
+
+      if (choice === "panic") {
+        previewSpecialButton.textContent = "PANIEK";
+      }
+
+      if (choice === "pretty") {
+        previewSpecialButton.textContent = "Maak mooier";
+      }
+
+      if (choice === "ugly") {
+        previewSpecialButton.textContent = "Maak lelijker";
+      }
+
+      if (choice === "professional") {
+        previewSpecialButton.textContent = "Professioneel maken";
+      }
+
+      if (choice === "destroy") {
+        previewSpecialButton.textContent = "Website slopen";
+      }
+
+      if (choice === "compliment") {
+        previewSpecialButton.textContent = "Geef mij compliment";
+      }
+    }
+
+    function applyChaos() {
+      const chaos = Number(chaosLevel.value);
+
+      const rotate = (chaos / 100) * 7 - 3.5;
+      const scale = 1 + (chaos / 100) * 0.04;
+      const blur = chaos > 75 ? "blur(0.7px)" : "none";
+
+      previewCard.style.transform = "rotate(" + rotate + "deg) scale(" + scale + ")";
+      previewCard.style.filter = blur;
+
+      if (chaos > 40) {
+        previewCard.style.borderRadius = "8px";
+      }
+
+      if (chaos > 70) {
+        previewEmoji.textContent = emojiChoice.value + " " + emojiChoice.value + " " + emojiChoice.value;
+      }
+    }
+
+    function makeWorse() {
+      const randomBackgrounds = ["red", "rainbow", "green", "nightclub"];
+      const randomStyles = ["kids", "chaos", "hacker"];
+      const randomFonts = ["big", "comic", "mono"];
+      const randomEffects = ["shake", "rainbow", "alarm", "crooked"];
+
+      backgroundChoice.value = randomBackgrounds[Math.floor(Math.random() * randomBackgrounds.length)];
+      styleChoice.value = randomStyles[Math.floor(Math.random() * randomStyles.length)];
+      fontChoice.value = randomFonts[Math.floor(Math.random() * randomFonts.length)];
+      effectChoice.value = randomEffects[Math.floor(Math.random() * randomEffects.length)];
+      chaosLevel.value = Math.min(100, Number(chaosLevel.value) + 30);
+
+      updatePreview();
+    }
+
+    function resetBuilder() {
+      titleInput.value = "Mijn geweldige pagina";
+      subtitleInput.value = "Dit is waarschijnlijk een slecht idee";
+      textInput.value = "Welkom op mijn zelfgemaakte pagina. Ik heb geen idee wat ik doe, maar het ziet er belangrijk uit.";
+
+      backgroundChoice.value = "purple";
+      styleChoice.value = "normal";
+      fontChoice.value = "normal";
+      emojiChoice.value = "💩";
+      buttonChoice.value = "none";
+      effectChoice.value = "none";
+      chaosLevel.value = 20;
+
+      ratingBox.style.display = "none";
+      previewCard.classList.remove("destroyed");
+
+      updatePreview();
+    }
+
+    function showPopup(title, message) {
+      popupTitle.textContent = title;
+      popupMessage.textContent = message;
+      popupBackground.style.display = "flex";
+    }
+
+    popupClose.addEventListener("click", () => {
+      popupBackground.style.display = "none";
+    });
+
+    popupBackground.addEventListener("click", (event) => {
+      if (event.target === popupBackground) {
+        popupBackground.style.display = "none";
+      }
+    });
+
+    updatePreview();
+
+    /* TIJD VERSPILD */
+    const wasteTimeText = document.getElementById("waste-time");
+
+    let totalWastedSeconds = Number(localStorage.getItem("totalWastedSeconds")) || 0;
+
+    function showWasteTimer() {
+      const hours = Math.floor(totalWastedSeconds / 3600);
+      const minutes = Math.floor((totalWastedSeconds % 3600) / 60);
+      const seconds = totalWastedSeconds % 60;
+
+      if (hours > 0) {
+        wasteTimeText.textContent =
+          hours + " uur, " + minutes + " minuten en " + seconds + " seconden";
+      } else if (minutes > 0) {
+        wasteTimeText.textContent =
+          minutes + " minuten en " + seconds + " seconden";
+      } else {
+        wasteTimeText.textContent = seconds + " seconden";
+      }
+    }
+
+    showWasteTimer();
+
+    setInterval(() => {
+      totalWastedSeconds++;
+      localStorage.setItem("totalWastedSeconds", totalWastedSeconds);
+      showWasteTimer();
+    }, 1000);
+  </script>
+
+</body>
+</html>
