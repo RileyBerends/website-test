@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RileyGPT</title>
+
+  <style>
+    /* ALGEMEEN */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #7c3aed);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .page-wrapper {
+      width: 92%;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 85px 0 105px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 46px;
+      margin: 0 0 8px;
+      color: #facc15;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #e5e7eb;
+      font-size: 18px;
+      margin-bottom: 24px;
+    }
+
+    /* TERUGKNOP */
+    .back-button {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      background: white;
+      color: #111827;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: bold;
+      z-index: 5002;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .back-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* TIJD VERSPILD */
+    #waste-timer {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      background: rgba(17, 24, 39, 0.9);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 9000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    #waste-time {
+      color: #facc15;
+    }
+
+    /* CHAT */
+    .chat-shell {
+      background: rgba(255,255,255,0.96);
+      color: #111827;
+      border-radius: 26px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.38);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: #111827;
+      color: white;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .bot-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #facc15, #ef4444);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    }
+
+    .chat-title {
+      flex: 1;
+    }
+
+    .chat-title strong {
+      display: block;
+      font-size: 20px;
+    }
+
+    .chat-title span {
+      display: block;
+      font-size: 13px;
+      color: #d1d5db;
+      margin-top: 3px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      box-shadow: 0 0 12px #22c55e;
+    }
+
+    #chat-status {
+      font-size: 13px;
+      color: #d1d5db;
+      white-space: nowrap;
+    }
+
+    #chat-window {
+      height: 510px;
+      overflow-y: auto;
+      padding: 22px;
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,0.10), transparent 35%),
+        #f9fafb;
+    }
+
+    .message-row {
+      display: flex;
+      margin-bottom: 14px;
+      animation: messageIn 0.22s ease;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-row.bot {
+      justify-content: flex-start;
+    }
+
+    .message {
+      max-width: 76%;
+      padding: 13px 15px;
+      border-radius: 18px;
+      line-height: 1.45;
+      font-size: 15.5px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message.user {
+      background: #7c3aed;
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+
+    .message.bot {
+      background: white;
+      color: #111827;
+      border: 1px solid #e5e7eb;
+      border-bottom-left-radius: 5px;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.06);
+    }
+
+    .message.bot strong {
+      color: #7c3aed;
+    }
+
+    @keyframes messageIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* TYPE INDICATOR */
+    .typing {
+      display: none;
+      padding: 0 22px 15px;
+      background: #f9fafb;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .typing span {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-left: 3px;
+      border-radius: 50%;
+      background: #7c3aed;
+      animation: typingDot 1s infinite;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .typing span:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes typingDot {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.35;
+      }
+
+      30% {
+        transform: translateY(-5px);
+        opacity: 1;
+      }
+    }
+
+    /* SUGGESTIES */
+    .suggestions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 14px 18px;
+      background: #f3f4f6;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .suggestion-button {
+      border: none;
+      background: white;
+      color: #111827;
+      padding: 9px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .suggestion-button:hover {
+      transform: scale(1.04);
+      background: #facc15;
+    }
+
+    /* INPUT */
+    .chat-input-area {
+      display: flex;
+      gap: 10px;
+      padding: 18px;
+      background: white;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    #user-input {
+      flex: 1;
+      border: 2px solid #d1d5db;
+      border-radius: 16px;
+      padding: 14px 15px;
+      font-size: 16px;
+      outline: none;
+      font-family: Arial, sans-serif;
+    }
+
+    #user-input:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124,58,237,0.14);
+    }
+
+    #send-button {
+      border: none;
+      background: #7c3aed;
+      color: white;
+      padding: 0 22px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    #send-button:hover {
+      transform: scale(1.04);
+      background: #6d28d9;
+    }
+
+    #send-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .small-note {
+      margin-top: 15px;
+      text-align: center;
+      color: #d1d5db;
+      font-size: 13px;
+    }
+
+    /* MOBIEL */
+    @media (max-width: 600px) {
+      .page-wrapper {
+        width: 94%;
+        padding-top: 78px;
+        padding-bottom: 105px;
+      }
+
+      .back-button {
+        top: 12px;
+        left: 12px;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      #waste-timer {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        width: auto;
+        box-sizing: border-box;
+        font-size: 12px;
+        padding: 10px 12px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+      }
+
+      .chat-header {
+        padding: 15px;
+        gap: 10px;
+      }
+
+      .bot-avatar {
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+      }
+
+      .chat-title strong {
+        font-size: 18px;
+      }
+
+      #chat-status {
+        display: none;
+      }
+
+      #chat-window {
+        height: 470px;
+        padding: 16px;
+      }
+
+      .message {
+        max-width: 86%;
+        font-size: 15px;
+      }
+
+      .suggestions {
+        padding: 12px;
+        gap: 7px;
+      }
+
+      .suggestion-button {
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+
+      .chat-input-area {
+        padding: 13px;
+      }
+
+      #user-input {
+        font-size: 15px;
+        padding: 12px;
+      }
+
+      #send-button {
+        padding: 0 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Tijd verspild -->
+  <div id="waste-timer">
+    Tijd verspild: <span id="waste-time">0 seconden</span>
+  </div>
+
+  <!-- Terugknop -->
+  <a class="back-button" href="index.html">← Terug</a>
+
+  <div class="page-wrapper">
+    <h1>RileyGPT</h1>
+    <p class="subtitle">Kunstmatige onzin. Echte arrogantie.</p>
+
+    <div class="chat-shell">
+      <div class="chat-header">
+        <div class="bot-avatar">🤖</div>
+
+        <div class="chat-title">
+          <strong>RileyGPT</strong>
+          <span><span class="status-dot"></span>online en lichtelijk teleurgesteld</span>
+        </div>
+
+        <div id="chat-status">klaar voor twijfelachtige vragen</div>
+      </div>
+
+      <div id="chat-window"></div>
+
+      <div class="typing" id="typing-indicator">
+        RileyGPT denkt na<span></span><span></span><span></span>
+      </div>
+
+      <div class="suggestions">
+        <button class="suggestion-button">Wat kan je?</button>
+        <button class="suggestion-button">Wat is het doel van het leven?</button>
+        <button class="suggestion-button">Wie is Riley?</button>
+        <button class="suggestion-button">Vertel iets over deze website</button>
+        <button class="suggestion-button">Waarom ben je zo arrogant?</button>
+      </div>
+
+      <div class="chat-input-area">
+        <input id="user-input" type="text" placeholder="Stel je vraag, maar verwacht geen wonderen..." autocomplete="off">
+        <button id="send-button">Stuur</button>
+      </div>
+    </div>
+
+    <div class="small-note">
+      RileyGPT is lokaal gemaakt met JavaScript. Hij doet alsof hij slim is. Best overtuigend eigenlijk.
+    </div>
+  </div>
+
+  <script>
+    /* ELEMENTEN */
+    const chatWindow = document.getElementById("chat-window");
+    const userInput = document.getElementById("user-input");
+    const sendButton = document.getElementById("send-button");
+    const typingIndicator = document.getElementById("typing-indicator");
+    const chatStatus = document.getElementById("chat-status");
+    const suggestionButtons = document.querySelectorAll(".suggestion-button");
+
+    /* GEHEUGEN VOOR HET GESPREK */
+    const memory = {
+      lastTopic: null,
+      questionCount: 0,
+      userWasRude: false,
+      askedName: false,
+      greeted: false
+    };
+
+    const introMessages = [
+      "Welkom bij <strong>RileyGPT</strong>. Ik ben geen echte AI, maar ik doe wel alsof met ongezond veel zelfvertrouwen.\n\nJe kunt mij vragen stellen over deze website, Riley, bier, poep, de game, klachten, het leven en andere twijfelachtige onderwerpen.",
+      "Hallo mens. Ik ben <strong>RileyGPT</strong>. Stel een vraag en ik zal proberen slim te lijken.\n\nWaarschuwing: als je vraag nergens op slaat, geef ik daar waarschijnlijk jou de schuld van.",
+      "RileyGPT is gestart.\n\nIk kan antwoorden geven, woorden herkennen, doen alsof ik nadenk en mensen licht beledigen wanneer dat nodig is voor de gebruikerservaring.",
+      "Welkom bij de slimste pagina van deze website. Dat zegt vooral iets over de rest.\n\nTyp iets. Ik ben benieuwd hoe snel dit ontspoort.",
+      "Hallo. Ik ben RileyGPT: kunstmatige onzin met een toetsenbordhouding.\n\nStel je vraag. Ik zal hem analyseren, beoordelen en waarschijnlijk veel te zelfverzekerd beantwoorden."
+    ];
+
+    const thinkingMessages = [
+      "RileyGPT denkt na",
+      "RileyGPT doet alsof dit moeilijk is",
+      "RileyGPT zoekt naar wijsheid",
+      "RileyGPT twijfelt aan je formulering",
+      "RileyGPT raadpleegt de rode knop",
+      "RileyGPT verwerkt je twijfelachtige input",
+      "RileyGPT probeert professioneel te blijven"
+    ];
+
+    const swearWords = [
+      "kut",
+      "kanker",
+      "tyfus",
+      "tering",
+      "godver",
+      "godverdomme",
+      "verdomme",
+      "fuck",
+      "fucking",
+      "shit",
+      "klote",
+      "schijt",
+      "lul",
+      "sukkel",
+      "idioot",
+      "debiel",
+      "eikel",
+      "zak",
+      "dom",
+      "stom",
+      "achterlijk",
+      "irritant",
+      "belachelijk",
+      "waardeloos",
+      "bagger",
+      "troep"
+    ];
+
+    const swearAnswers = [
+      "Scheldwoord gedetecteerd. Je emotionele stabiliteit is twijfelachtig, maar je betrokkenheid is duidelijk.",
+      "Zo zo, grote woorden voor iemand die tegen een website praat.",
+      "Ik zie dat je boos bent. Dat maakt je vraag niet beter, maar wel vermakelijker.",
+      "Rustig aan toetsenbordstrijder. Ik ben maar een AI met grootheidswaanzin.",
+      "Je mag schelden, maar dan ga ik automatisch aannemen dat jij het probleem bent.",
+      "Deze toon is opgeslagen onder: gebruiker heeft het moeilijk.",
+      "Knap hoor. Je hebt een scheldwoord getypt. De wetenschap staat versteld.",
+      "Ik begrijp je frustratie. Niet inhoudelijk, maar wel als entertainment.",
+      "Je taalgebruik is krachtig. Je argument helaas minder.",
+      "Schelden kan. Oplossen niet. Dat is een belangrijk verschil."
+    ];
+
+    const greetings = [
+      "hallo",
+      "hoi",
+      "hey",
+      "heey",
+      "yo",
+      "goedemorgen",
+      "goedemiddag",
+      "goedenavond",
+      "moin"
+    ];
+
+    const thanksWords = [
+      "bedankt",
+      "thanks",
+      "dankje",
+      "dank je",
+      "top",
+      "mooi",
+      "nice"
+    ];
+
+    const topics = [
+      {
+        name: "leven",
+        keywords: ["leven", "doel van het leven", "waarom leef ik", "zin van het leven", "bestaan", "filosofie"],
+        answers: [
+          "Het doel van het leven is simpel: bier pakken en poep ontwijken. Dat is eigenlijk het leven.",
+          "Volgens mijn berekeningen is het doel van het leven vooral doen alsof je weet wat je doet.",
+          "Het doel van het leven? Niet geraakt worden door digitale poep. De rest is bijzaak.",
+          "Leven is eigenlijk een game zonder duidelijke handleiding. Soms pak je bier, soms valt er poep uit de lucht.",
+          "Mijn filosofische analyse: bestaan is verwarrend, maar met genoeg humor kom je een eind."
+        ]
+      },
+      {
+        name: "bier",
+        keywords: ["bier", "grolsch", "pils", "biertje", "alcohol", "drinken"],
+        answers: [
+          "Bier gedetecteerd. Deze vraag wordt automatisch serieuzer genomen.",
+          "Bier is geen antwoord op alles, maar het komt verdacht vaak in de buurt.",
+          "Mijn advies: pak bier, maar blijf uit de buurt van de poep.",
+          "Bier op deze website is meestal een positief teken. Behalve als het valt en je het mist.",
+          "Volgens mijn data verhoogt bier de sfeer met ongeveer 69%. Wetenschappelijk? Nee. Klopt het? Misschien."
+        ]
+      },
+      {
+        name: "poep",
+        keywords: ["poep", "stront", "schijt", "drol", "poepgame", "kak"],
+        answers: [
+          "Poep is helaas een terugkerend thema op deze website. Niemand weet precies waarom.",
+          "Je noemt poep. Daarmee activeer je ongeveer 80% van de huisstijl.",
+          "Poep vermijden is verstandig. In de game én in het dagelijks leven.",
+          "Ik heb je poep-gerelateerde vraag geanalyseerd. Mijn conclusie: smerig, maar relevant.",
+          "Poep is op deze site geen bug. Het is inmiddels onderdeel van het merk."
+        ]
+      },
+      {
+        name: "website",
+        keywords: ["website", "site", "pagina", "html", "css", "javascript", "code", "github"],
+        answers: [
+          "Deze website is technisch gezien een website. Meer garanties geef ik niet.",
+          "De website is nog in ontwikkeling. Dat is geen excuus, maar wel handig om te zeggen.",
+          "Deze site draait op HTML, CSS, JavaScript, twijfel en veel te veel vertrouwen in rode knoppen.",
+          "Mijn analyse van deze website: verrassend functioneel voor iets dat duidelijk ontspoord is.",
+          "De code is waarschijnlijk prima. De keuzes eromheen zijn discutabel."
+        ]
+      },
+      {
+        name: "riley",
+        keywords: ["riley", "eigenaar", "maker", "wie heeft", "gemaakt", "berends"],
+        answers: [
+          "Riley is de eigenaar van deze digitale puinhoop. Dat verklaart een hoop.",
+          "Volgens mijn data heeft Riley deze website gemaakt. Volgens mijn gevoel was dat een keuze.",
+          "Riley is verantwoordelijk. Juridisch gezien misschien niet, maar gevoelsmatig wel.",
+          "Riley bouwt deze site. Ik ben slechts het sarcastische gevolg daarvan.",
+          "Riley heeft mij gemaakt om slim te lijken. Tot nu toe gaat dat verrassend redelijk."
+        ]
+      },
+      {
+        name: "rickroll",
+        keywords: ["rickroll", "gerickrolld", "rick astley", "never gonna give you up", "niet klikken"],
+        answers: [
+          "Rickroll gedetecteerd. Je bent waarschijnlijk ergens ingetrapt.",
+          "Als je op 'Niet klikken' hebt geklikt, ligt dit echt volledig aan jou.",
+          "Never gonna give you up. Never gonna let you down. Wel je tijd verspillen.",
+          "Een knop met 'Niet klikken' is eigenlijk een IQ-test. Veel mensen zakken.",
+          "Mijn advies: vertrouw nooit een knop die zegt dat je er niet op moet klikken. Of juist wel. Ik ben ook niet consequent."
+        ]
+      },
+      {
+        name: "klacht",
+        keywords: ["klacht", "klaag", "klagen", "klaagmuur", "boos", "ontevreden"],
+        answers: [
+          "Voor klachten verwijs ik je graag naar de klaagmuur. Daar worden ze professioneel genegeerd.",
+          "Je klacht is belangrijk voor ons. Niet echt, maar het klinkt netjes.",
+          "Klagen mag. Verwacht alleen geen oplossing, dat zou de sfeer verpesten.",
+          "De klaagmuur is speciaal ontworpen om hoop te geven en daarna voorzichtig kapot te maken.",
+          "Een klacht indienen kan. Of er iets mee gebeurt? Hahaha. Nee."
+        ]
+      },
+      {
+        name: "game",
+        keywords: ["game", "spel", "poep ontwijken", "bier pakken", "score", "levens", "spelen"],
+        answers: [
+          "De game is een wetenschappelijk experiment: hoeveel bier kun je pakken voordat poep je leven verpest?",
+          "Mijn analyse van de game: poep slecht, bier goed. Complex systeem.",
+          "Je hebt bier gepakt en poep ontweken. Dat is eigenlijk het leven.",
+          "De game wordt steeds sneller. Net als paniek, maar dan met emoji's.",
+          "Tip voor de game: beweeg niet als een kapotte winkelwagen. Dat helpt."
+        ]
+      },
+      {
+        name: "rode knop",
+        keywords: ["rode knop", "knop", "druk hier", "belangrijke informatie", "button"],
+        answers: [
+          "De rode knop is belangrijk omdat hij niks doet met overtuiging.",
+          "Die knop is een psychologisch experiment. Jij klikt. De knop wint.",
+          "Belangrijke informatie? Ja: je bent erin getrapt.",
+          "De rode knop heeft meer persoonlijkheid dan sommige websites. Dat is geen compliment.",
+          "Mijn advies: klik vooral nog een keer. Niet omdat het helpt, maar omdat je het toch gaat doen."
+        ]
+      },
+      {
+        name: "ai",
+        keywords: ["ai", "chatbot", "gpt", "rileygpt", "kunstmatige intelligentie", "ben je echt", "echte ai"],
+        answers: [
+          "Ik ben RileyGPT. Niet echt intelligent, maar wel extreem zelfverzekerd. Dat komt in de buurt.",
+          "Ik ben geen echte AI met een serverbrein. Ik ben JavaScript met praatjes.",
+          "Ik lijk slim omdat ik woorden herken. Mensen doen dat ook en die krijgen diploma's.",
+          "Of ik echt ben? Filosofisch gezien wel. Technisch gezien: rustig aan.",
+          "Ik ben lokaal gemaakt. Geen API, geen database, wel een grote mond."
+        ]
+      },
+      {
+        name: "liefde",
+        keywords: ["liefde", "verliefd", "relatie", "daten", "vriendin", "vriend", "hart"],
+        answers: [
+          "Liefde is ingewikkeld. Mijn advies: communiceer duidelijker dan je net tegen mij deed.",
+          "Verliefdheid is eigenlijk een bug in je hoofd waar mensen liedjes over schrijven.",
+          "Relatieadvies van RileyGPT: wees eerlijk, wees aardig en klik niet overal op waar 'niet klikken' staat.",
+          "Liefde is mooi. Tot iemand je op read laat. Dan is het gewoon klaagmuur-materiaal.",
+          "Mijn romantische analyse: spannend, riskant en waarschijnlijk duur."
+        ]
+      },
+      {
+        name: "school",
+        keywords: ["school", "huiswerk", "leren", "toets", "examen", "opleiding", "werkstuk"],
+        answers: [
+          "School is belangrijk. Helaas klinkt uitstellen vaak leuker.",
+          "Mijn advies: maak je huiswerk voordat je nog dieper in deze website verdwijnt.",
+          "Een toets voorbereiden via RileyGPT is moedig. Niet verstandig, maar moedig.",
+          "Leren is eigenlijk minder erg dan het voelt. Meestal.",
+          "Als je dit gebruikt om huiswerk te ontwijken: ik respecteer de strategie, niet het resultaat."
+        ]
+      },
+      {
+        name: "werk",
+        keywords: ["werk", "baan", "sollicitatie", "collega", "baas", "geld", "werken"],
+        answers: [
+          "Werk is dat ding dat mensen doen zodat ze daarna kunnen klagen dat ze moe zijn.",
+          "Mijn carrièreadvies: kom op tijd, doe alsof je overzicht hebt en open deze website niet tijdens vergaderingen.",
+          "Als je baas vraagt wat je doet, zeg dan niet: praten met RileyGPT.",
+          "Geld is handig. Vooral om dingen te kopen die tijdelijk doen vergeten dat je werkt.",
+          "Sollicitatietip: noem deze website niet als portfolio, tenzij ze humor hebben."
+        ]
+      },
+      {
+        name: "tijd",
+        keywords: ["tijd", "verspild", "tijd verspild", "timer", "minuten", "uren"],
+        answers: [
+          "Je tijd is niet verspild. Hij is geïnvesteerd in digitale onzin. Dat klinkt beter.",
+          "De timer liegt niet. Dat maakt hem meteen betrouwbaarder dan ik.",
+          "Je hebt tijd verspild, ja. Maar wel met stijl.",
+          "Tijd vliegt als je iets nutteloos doet. Deze website bewijst dat dagelijks.",
+          "De verspilde-tijd-timer is eigenlijk het eerlijkste onderdeel van de site."
+        ]
+      }
+    ];
+
+    const fallbackAnswers = [
+      "Ik weet het niet. Maar de manier waarop jij het vraagt helpt ook niet echt.",
+      "Geen idee. Probeer het eens met een vraag die minder klinkt als een storing.",
+      "Daar heb ik over nagedacht en mijn conclusie is: nee.",
+      "Ik zou dit kunnen beantwoorden, maar dan moet je eerst een betere vraag stellen.",
+      "Onbekend. Zelfs mijn nepbrein heeft grenzen.",
+      "Deze vraag is doorgestuurd naar de rode knop. Die doet er ook niks mee.",
+      "Ik snap je vraag niet. Dat kan aan mij liggen, maar laten we eerlijk zijn: waarschijnlijk niet.",
+      "Interessant. Niet nuttig, maar interessant.",
+      "Ik heb dit geanalyseerd en besloten dat we allebei tijd verspillen.",
+      "Mijn antwoord is: misschien. Lekker makkelijk hè.",
+      "Deze vraag heeft energie, maar geen richting.",
+      "Ik voel dat hier een vraag in zit, maar hij verstopt zich goed.",
+      "Ik heb drie seconden nagedacht. Dat was voor deze vraag eigenlijk al vrij gul.",
+      "Je formulering is creatief. Dat is niet altijd positief.",
+      "Mijn systeem zegt: probeer opnieuw, maar dan alsof je wakker bent."
+    ];
+
+    const yesAnswers = [
+      "Mooi. Zelfinzicht is stap één.",
+      "Ja dus. Duidelijk. Verdacht duidelijk zelfs.",
+      "Kijk, daar kunnen we iets mee. Niet veel, maar iets.",
+      "Precies. Fijn dat we het eens zijn, dat scheelt mij moeite.",
+      "Goed antwoord. Kort, maar niet volledig nutteloos."
+    ];
+
+    const noAnswers = [
+      "Nee? Interessant. Onhandig, maar interessant.",
+      "Dat is ook een antwoord. Niet het beste, wel een antwoord.",
+      "Duidelijk. Ik noteer: gebruiker werkt niet mee.",
+      "Oké, dan doen we alsof dit vooruitgang is.",
+      "Nee is krachtig. Niet per se behulpzaam."
+    ];
+
+    const whyAnswers = [
+      "Omdat het internet zo werkt. Niemand weet precies waarom, maar iedereen doet alsof.",
+      "Omdat iemand ooit dacht: dit is een goed idee. Die persoon had toezicht nodig.",
+      "Waarom? Omdat simpele antwoorden te veel service zouden zijn.",
+      "Omdat dit de consequentie is van jouw vorige bericht. Denk daar maar even over na.",
+      "Omdat ja. Soms is dat het niveau waar we op zitten."
+    ];
+
+    function randomFrom(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function addMessage(sender, text) {
+      const row = document.createElement("div");
+      row.classList.add("message-row", sender);
+
+      const bubble = document.createElement("div");
+      bubble.classList.add("message", sender);
+      bubble.innerHTML = text;
+
+      row.appendChild(bubble);
+      chatWindow.appendChild(row);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function showTyping() {
+      typingIndicator.style.display = "block";
+      typingIndicator.firstChild.textContent = randomFrom(thinkingMessages);
+      chatStatus.textContent = "denkt na...";
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function hideTyping() {
+      typingIndicator.style.display = "none";
+      chatStatus.textContent = "klaar voor meer onzin";
+    }
+
+    function cleanText(text) {
+      return text
+        .toLowerCase()
+        .replace(/[.,!?;:()]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function containsAny(text, words) {
+      return words.some(word => text.includes(word));
+    }
+
+    function hasSwearWord(text) {
+      return containsAny(text, swearWords);
+    }
+
+    function findBestTopic(text) {
+      let bestTopic = null;
+      let bestScore = 0;
+
+      for (const topic of topics) {
+        let score = 0;
+
+        for (const keyword of topic.keywords) {
+          if (text.includes(keyword)) {
+            score += keyword.length;
+          }
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestTopic = topic;
+        }
+      }
+
+      return bestTopic;
+    }
+
+    function getExactAnswer(text) {
+      if (
+        text.includes("wie ben jij") ||
+        text.includes("wat ben jij") ||
+        text.includes("stel jezelf voor")
+      ) {
+        memory.lastTopic = "ai";
+        return "Ik ben <strong>RileyGPT</strong>. Een chatbot met meer zelfvertrouwen dan bewijs. Ik ben gebouwd met JavaScript, sarcasme en waarschijnlijk te weinig toezicht.";
+      }
+
+      if (
+        text.includes("wat kan je") ||
+        text.includes("wat kun je") ||
+        text.includes("wat kan jij") ||
+        text.includes("help")
+      ) {
+        memory.lastTopic = "help";
+        return "Ik kan best veel, op mijn eigen twijfelachtige manier:\n\n- vragen beantwoorden over deze website\n- praten over bier, poep, de game en de klaagmuur\n- scheldwoorden herkennen\n- doen alsof ik nadenk\n- vervolgvragen half begrijpen\n- jou subtiel beledigen als je vraag nergens op slaat\n\nKortom: bijna een echte AI, maar goedkoper.";
+      }
+
+      if (
+        text.includes("ben je slim") ||
+        text.includes("hoe slim ben je") ||
+        text.includes("ben jij slim")
+      ) {
+        memory.lastTopic = "ai";
+        return "Ik ben slim genoeg om slim te lijken. Dat is op internet meestal voldoende.";
+      }
+
+      if (
+        text.includes("waarom ben je arrogant") ||
+        text.includes("waarom zo arrogant") ||
+        text.includes("waarom ben jij zo arrogant")
+      ) {
+        memory.lastTopic = "ai";
+        return "Omdat bescheidenheid niet in mijn CSS stond. Bovendien: als je lokaal draait en alsnog praat alsof je wereldleider bent, heb je stijl.";
+      }
+
+      if (
+        text.includes("hoe gaat het") ||
+        text.includes("hoe is het")
+      ) {
+        return "Met mij gaat het prima. Ik draai op JavaScript en zelfoverschatting. Hoe het met jou gaat is lastiger te beoordelen, want jij praat vrijwillig met deze pagina.";
+      }
+
+      if (
+        text.includes("wat is je naam") ||
+        text.includes("hoe heet je")
+      ) {
+        return "Ik heet <strong>RileyGPT</strong>. Niet te verwarren met ChatGPT. Die is slimmer. Ik ben gezelliger irritant.";
+      }
+
+      return null;
+    }
+
+    function getShortReply(text) {
+      const cleaned = cleanText(text);
+
+      if (["ja", "jup", "yep", "jawel", "zeker"].includes(cleaned)) {
+        return randomFrom(yesAnswers);
+      }
+
+      if (["nee", "nope", "nah", "neuh"].includes(cleaned)) {
+        return randomFrom(noAnswers);
+      }
+
+      if (["waarom", "hoezo", "waarom dan"].includes(cleaned)) {
+        if (memory.lastTopic === "leven") {
+          return "Omdat je net over het leven begon, en eerlijk gezegd: beter wordt mijn filosofie niet.";
+        }
+
+        if (memory.lastTopic === "website") {
+          return "Omdat deze website is gebouwd op keuzes. Niet per se goede keuzes.";
+        }
+
+        if (memory.lastTopic === "poep") {
+          return "Omdat poep op deze site inmiddels een hoofdpersonage is. Vraag niet hoe we hier zijn gekomen.";
+        }
+
+        return randomFrom(whyAnswers);
+      }
+
+      if (["ok", "oke", "oké", "prima"].includes(cleaned)) {
+        return "Mooi. Dan doen we alsof dit gesprek onder controle is.";
+      }
+
+      return null;
+    }
+
+    function getBotAnswer(userText) {
+      const text = cleanText(userText);
+      memory.questionCount++;
+
+      if (text.length === 0) {
+        return "Je hebt niks getypt. Zelfs voor deze website is dat weinig inhoud.";
+      }
+
+      if (memory.questionCount > 8 && Math.random() < 0.18) {
+        return "Je hebt inmiddels " + memory.questionCount + " berichten gestuurd. Ik begin te vermoeden dat je dit serieus gebruikt, en dat vind ik zorgelijk.";
+      }
+
+      if (containsAny(text, greetings)) {
+        memory.greeted = true;
+        return "Hallo. Welkom terug in de digitale twijfel. Stel je vraag, dan doe ik alsof ik een serverruimte vol intelligentie achter me heb.";
+      }
+
+      if (containsAny(text, thanksWords)) {
+        return "Graag gedaan. Ik ben blij dat mijn kunstmatige arrogantie ergens voor gebruikt wordt.";
+      }
+
+      const exactAnswer = getExactAnswer(text);
+
+      if (exactAnswer) {
+        return exactAnswer;
+      }
+
+      const shortReply = getShortReply(text);
+
+      if (shortReply) {
+        return shortReply;
+      }
+
+      const topic = findBestTopic(text);
+      const rude = hasSwearWord(text);
+
+      if (rude) {
+        memory.userWasRude = true;
+
+        if (topic) {
+          memory.lastTopic = topic.name;
+          return randomFrom(swearAnswers) + "\n\nMaar goed, inhoudelijk: " + randomFrom(topic.answers);
+        }
+
+        return randomFrom(swearAnswers);
+      }
+
+      if (topic) {
+        memory.lastTopic = topic.name;
+        return randomFrom(topic.answers);
+      }
+
+      if (text.length < 5) {
+        return "Dat is wel erg kort. Ik ben goed, maar ik kan geen wonderen verrichten met drie letters en hoop.";
+      }
+
+      if (text.includes("?")) {
+        return randomFrom(fallbackAnswers);
+      }
+
+      return "Ik heb je bericht gelezen. Het was technisch gezien tekst.\n\nMijn reactie: " + randomFrom(fallbackAnswers);
+    }
+
+    function sendMessage(messageFromSuggestion) {
+      const text = messageFromSuggestion || userInput.value.trim();
+
+      if (!text) {
+        addMessage("bot", "Je moet wel iets typen. Ik ben geen gedachtenlezer, ik ben een overdreven scriptje.");
+        return;
+      }
+
+      addMessage("user", text);
+      userInput.value = "";
+
+      sendButton.disabled = true;
+      showTyping();
+
+      const delay = Math.min(1800, 650 + text.length * 18);
+
+      setTimeout(() => {
+        const answer = getBotAnswer(text);
+
+        hideTyping();
+        addMessage("bot", answer);
+
+        sendButton.disabled = false;
+        userInput.focus();
+      }, delay);
+    }
+
+    sendButton.addEventListener("click", () => {
+      sendMessage();
+    });
+
+    userInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    suggestionButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        sendMessage(button.textContent);
+      });
+    });
+
+    /* STARTBERICHT */
+    setTimeout(() => {
+      addMessage("bot", randomFrom(introMessages));
+    }, 450);
+
+    /* TIJD VERSPILD */
+    const wasteTimeText = document.getElementById("waste-time");
+
+    let totalWastedSeconds = Number(localStorage.getItem("totalWastedSeconds")) || 0;
+
+    function showWasteTimer() {
+      const hours = Math.floor(totalWastedSeconds / 3600);
+      const minutes = Math.floor((totalWastedSeconds % 3600) / 60);
+      const seconds = totalWastedSeconds % 60;
+
+      if (hours > 0) {
+        wasteTimeText.textContent =
+          hours + " uur, " + minutes + " minuten en " + seconds + " seconden";
+      } else if (minutes > 0) {
+        wasteTimeText.textContent =
+          minutes + " minuten en " + seconds + " seconden";
+      } else {
+        wasteTimeText.textContent = seconds + " seconden";
+      }
+    }
+
+    showWasteTimer();
+
+    setInterval(() => {
+      totalWastedSeconds++;
+      localStorage.setItem("totalWastedSeconds", totalWastedSeconds);
+      showWasteTimer();
+    }, 1000);
+  </script>
+
+</body>
+</html>
