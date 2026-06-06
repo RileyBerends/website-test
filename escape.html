@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escape Room</title>
+
+  <style>
+    /* ALGEMEEN */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #7c3aed);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .page-wrapper {
+      width: 92%;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 85px 0 115px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 46px;
+      margin: 0 0 8px;
+      color: #facc15;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #e5e7eb;
+      font-size: 18px;
+      margin-bottom: 24px;
+    }
+
+    /* TERUGKNOP */
+    .back-button {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      background: white;
+      color: #111827;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: bold;
+      z-index: 5002;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .back-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* TIJD VERSPILD */
+    #waste-timer {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      background: rgba(17, 24, 39, 0.9);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 9000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    #waste-time {
+      color: #facc15;
+    }
+
+    /* GAME BOX */
+    .game-box {
+      background: rgba(255,255,255,0.96);
+      color: #111827;
+      border-radius: 26px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.38);
+      overflow: hidden;
+    }
+
+    .game-header {
+      background: #111827;
+      color: white;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .game-header strong {
+      font-size: 20px;
+      color: #facc15;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.12);
+      padding: 8px 11px;
+      border-radius: 999px;
+    }
+
+    .stat span {
+      color: #facc15;
+      font-weight: bold;
+    }
+
+    .story-area {
+      padding: 24px;
+      min-height: 330px;
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,0.10), transparent 35%),
+        #f9fafb;
+    }
+
+    #room-title {
+      margin-top: 0;
+      color: #7c3aed;
+      font-size: 28px;
+    }
+
+    #story-text {
+      font-size: 17px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      color: #1f2937;
+    }
+
+    .inventory-box {
+      background: #f3f4f6;
+      border-top: 1px solid #e5e7eb;
+      padding: 16px 24px;
+      color: #111827;
+    }
+
+    .inventory-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #7c3aed;
+    }
+
+    #inventory-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .inventory-item {
+      background: white;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 20px 24px 24px;
+      background: white;
+    }
+
+    .action-button {
+      border: none;
+      background: #7c3aed;
+      color: white;
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.16);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .action-button:hover {
+      transform: scale(1.03);
+      background: #6d28d9;
+    }
+
+    .action-button.red {
+      background: #ef4444;
+    }
+
+    .action-button.red:hover {
+      background: #dc2626;
+    }
+
+    .action-button.green {
+      background: #16a34a;
+    }
+
+    .action-button.green:hover {
+      background: #15803d;
+    }
+
+    .action-button.gray {
+      background: #374151;
+    }
+
+    .action-button.gray:hover {
+      background: #1f2937;
+    }
+
+    .small-note {
+      margin-top: 15px;
+      text-align: center;
+      color: #d1d5db;
+      font-size: 13px;
+    }
+
+    /* FLASH EFFECT */
+    .shake {
+      animation: shake 0.28s ease;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-7px); }
+      50% { transform: translateX(7px); }
+      75% { transform: translateX(-4px); }
+      100% { transform: translateX(0); }
+    }
+
+    /* MOBIEL */
+    @media (max-width: 600px) {
+      .page-wrapper {
+        width: 94%;
+        padding-top: 78px;
+        padding-bottom: 105px;
+      }
+
+      .back-button {
+        top: 12px;
+        left: 12px;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      #waste-timer {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        width: auto;
+        box-sizing: border-box;
+        font-size: 12px;
+        padding: 10px 12px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+      }
+
+      .game-header {
+        padding: 16px;
+      }
+
+      .story-area {
+        padding: 18px;
+      }
+
+      #room-title {
+        font-size: 24px;
+      }
+
+      #story-text {
+        font-size: 16px;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+
+      .inventory-box {
+        padding: 14px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Tijd verspild -->
+  <div id="waste-timer">
+    Tijd verspild: <span id="waste-time">0 seconden</span>
+  </div>
+
+  <!-- Terugknop -->
+  <a class="back-button" href="index.html">← Terug</a>
+
+  <div class="page-wrapper">
+    <h1>Escape Room</h1>
+    <p class="subtitle">Ontsnap uit je kamer. Probeer daarbij niet nóg verdachter te worden.</p>
+
+    <div class="game-box" id="game-box">
+      <div class="game-header">
+        <strong>Kamerarrest Simulator</strong>
+
+        <div class="stats">
+          <div class="stat">Schaamte: <span id="shame-text">0%</span></div>
+          <div class="stat">Batterij: <span id="battery-text">3%</span></div>
+          <div class="stat">Poging: <span id="attempt-text">1</span></div>
+        </div>
+      </div>
+
+      <div class="story-area">
+        <h2 id="room-title">Je kamer</h2>
+        <div id="story-text"></div>
+      </div>
+
+      <div class="inventory-box">
+        <div class="inventory-title">Inventaris:</div>
+        <div id="inventory-list"></div>
+      </div>
+
+      <div class="actions" id="actions"></div>
+    </div>
+
+    <div class="small-note">
+      Tip: deze escape room is gemeen. Dat is geen bug, dat is opvoeding.
+    </div>
+  </div>
+
+  <script>
+    /* GAME STATE */
+    const storyText = document.getElementById("story-text");
+    const roomTitle = document.getElementById("room-title");
+    const actions = document.getElementById("actions");
+    const inventoryList = document.getElementById("inventory-list");
+    const shameText = document.getElementById("shame-text");
+    const batteryText = document.getElementById("battery-text");
+    const attemptText = document.getElementById("attempt-text");
+    const gameBox = document.getElementById("game-box");
+
+    let state = {
+      location: "intro",
+      inventory: [],
+      shame: 0,
+      battery: 3,
+      attempt: Number(localStorage.getItem("escapeAttempts")) || 1,
+
+      foundSock: false,
+      foundBottle: false,
+      foundPaperclip: false,
+      foundTestPaper: false,
+      foundDeo: false,
+      foundCharger: false,
+      foundHoodie: false,
+      foundKeyCode: false,
+      closetOpen: false,
+      phoneCharged: false,
+      foundPosterHint: false,
+      foundWindowKey: false,
+      windowUnlocked: false,
+      sawDoorKey: false,
+      gotRoomKey: false,
+      sockTrapReady: false,
+      motherDistracted: false,
+      downstairs: false,
+      bellSilenced: false,
+      gotHouseKey: false
+    };
+
+    const introTexts = [
+      "Je bent betrapt tijdens het blowen.\n\nNiet subtiel. Niet slim. Niet 'ik stond toevallig naast iemand'.\nNee, gewoon ouderwets betrapt.\n\nJe moeder heeft je opgesloten op je kamer en gezegd:\n\n“Jij blijft daar tot je weer normaal doet.”\n\nProbleem: normaal doen stond vandaag niet op de planning.",
+      "Kamerarrest.\n\nJe moeder noemt het 'nadenken over je keuzes'.\nJij noemt het 'onvrijwillige binnenactiviteit'.\n\nJe telefoon heeft 3%, de wifi is uit, en je kamer ruikt naar Axe, spijt en een beetje geschiedenis.\n\nOntsnap.",
+      "Je zit opgesloten op je kamer.\n\nReden: betrapt met dingen waar moeders meestal geen PowerPoint-presentatie over willen.\n\nJe moeder bewaakt de gang alsof ze de eindbaas is.\nJij hebt alleen je kamer, 3% batterij en twijfelachtige voorwerpen.\n\nSucces, stoute jongen."
+    ];
+
+    const gameOverTexts = [
+      "GAME OVER.\n\nJe moeder heeft je opnieuw opgesloten.\nZe zei: “Ik wist dat je iets doms ging doen.”\n\nPijnlijkste detail: ze had gelijk.",
+      "GAME OVER.\n\nJe ontsnappingsplan was zo slecht dat zelfs de uitgeharde sok teleurgesteld is.",
+      "GAME OVER.\n\nJe ligt weer op je kamer.\nNiet gewond. Wel moreel vernederd.",
+      "GAME OVER.\n\nMoeder: “Zie je nou wel?”\n\nDat is eigenlijk het ergste wat ze kon zeggen.",
+      "GAME OVER.\n\nJe avontuur eindigde zoals je rapportcijfers: teleurstellend, maar niet verrassend."
+    ];
+
+    function hasItem(item) {
+      return state.inventory.includes(item);
+    }
+
+    function addItem(item) {
+      if (!hasItem(item)) {
+        state.inventory.push(item);
+      }
+      updateStats();
+    }
+
+    function removeItem(item) {
+      state.inventory = state.inventory.filter(i => i !== item);
+      updateStats();
+    }
+
+    function addShame(amount) {
+      state.shame += amount;
+
+      if (state.shame > 100) {
+        state.shame = 100;
+      }
+
+      updateStats();
+
+      if (state.shame >= 100) {
+        showGameOver("Je schaamte bereikt 100%.\n\nJe kijkt naar jezelf, naar je kamer, naar je keuzes, en besluit vrijwillig terug op bed te gaan liggen.\n\nGAME OVER.\nReden: emotioneel ingestort door eigen gedrag.");
+      }
+    }
+
+    function useBattery(amount) {
+      state.battery -= amount;
+
+      if (state.battery < 0) {
+        state.battery = 0;
+      }
+
+      updateStats();
+
+      if (state.battery <= 0) {
+        return false;
+      }
+
+      return true;
+    }
+
+    function updateStats() {
+      shameText.textContent = state.shame + "%";
+      batteryText.textContent = state.battery + "%";
+      attemptText.textContent = state.attempt;
+
+      inventoryList.innerHTML = "";
+
+      if (state.inventory.length === 0) {
+        const empty = document.createElement("span");
+        empty.classList.add("inventory-item");
+        empty.textContent = "helemaal niks. Sterk begin.";
+        inventoryList.appendChild(empty);
+        return;
+      }
+
+      state.inventory.forEach(item => {
+        const el = document.createElement("span");
+        el.classList.add("inventory-item");
+        el.textContent = item;
+        inventoryList.appendChild(el);
+      });
+    }
+
+    function setScene(title, text, buttons) {
+      roomTitle.textContent = title;
+      storyText.textContent = text;
+      actions.innerHTML = "";
+
+      buttons.forEach(button => {
+        const el = document.createElement("button");
+        el.classList.add("action-button");
+
+        if (button.color) {
+          el.classList.add(button.color);
+        }
+
+        el.textContent = button.text;
+        el.addEventListener("click", button.action);
+        actions.appendChild(el);
+      });
+
+      updateStats();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function shakeGame() {
+      gameBox.classList.remove("shake");
+      void gameBox.offsetWidth;
+      gameBox.classList.add("shake");
+    }
+
+    function startGame() {
+      setScene(
+        "Je kamer",
+        introTexts[Math.floor(Math.random() * introTexts.length)] +
+        "\n\nJe kijkt rond.\n\nJe ziet:\n- je bed\n- je bureau\n- je kast\n- het raam\n- de deur\n- je telefoon\n- een foute poster aan de muur\n- een wasmand die waarschijnlijk oorlogsmisdaden bevat",
+        [
+          { text: "Kijk onder je bed", action: showBed },
+          { text: "Bekijk je bureau", action: showDesk },
+          { text: "Bekijk je kast", action: showCloset },
+          { text: "Bekijk het raam", action: showWindow },
+          { text: "Bekijk de deur", action: showDoor },
+          { text: "Pak je telefoon", action: showPhone },
+          { text: "Bekijk de poster", action: showPoster },
+          { text: "Bekijk de wasmand", action: showLaundry, color: "gray" }
+        ]
+      );
+    }
+
+    function mainRoom(text) {
+      setScene(
+        "Je kamer",
+        text + "\n\nWat ga je doen?",
+        [
+          { text: "Kijk onder je bed", action: showBed },
+          { text: "Bekijk je bureau", action: showDesk },
+          { text: "Bekijk je kast", action: showCloset },
+          { text: "Bekijk het raam", action: showWindow },
+          { text: "Bekijk de deur", action: showDoor },
+          { text: "Pak je telefoon", action: showPhone },
+          { text: "Bekijk de poster", action: showPoster },
+          { text: "Bekijk de wasmand", action: showLaundry, color: "gray" }
+        ]
+      );
+    }
+
+    /* BED */
+    function showBed() {
+      let text = "Je knielt bij je bed.\n\nDe geur onder je bed is niet direct gevaarlijk, maar wel juridisch interessant.";
+
+      const buttons = [];
+
+      if (!state.foundSock) {
+        buttons.push({
+          text: "Grijp onder je bed",
+          action: () => {
+            state.foundSock = true;
+            addItem("🧦 uitgeharde sok");
+            addShame(8);
+
+            mainRoom(
+              "Je steekt je hand onder je bed.\n\nJe vindt een uitgeharde sok.\n\nHij is zo stijf dat hij bijna een eigen postcode heeft.\n\nHoe komt dat?\nJe besluit dat sommige mysteries beter mysterie kunnen blijven."
+            );
+          }
+        });
+      }
+
+      if (!state.foundBottle) {
+        buttons.push({
+          text: "Gebruik telefoon-zaklamp onder bed",
+          action: () => {
+            if (!state.phoneCharged && state.battery <= 3) {
+              mainRoom(
+                "Je telefoon heeft maar 3%.\n\nJe twijfelt of je zaklamp hiervoor moet gebruiken.\nJe doet het toch.\n\nJe batterij zakt naar 2% en je ziet vooral stof, schaamte en één verloren pinda.\n\nMisschien eerst opladen."
+              );
+              state.battery = 2;
+              updateStats();
+              return;
+            }
+
+            if (!hasItem("📱 telefoon bruikbaar")) {
+              mainRoom(
+                "Je hebt je telefoon wel, maar je hebt nog niet echt gekeken wat je ermee kan.\n\nPak eerst je telefoon, Sherlock."
+              );
+              return;
+            }
+
+            state.foundBottle = true;
+            addItem("🍺 leeg bierflesje");
+            mainRoom(
+              "Je gebruikt de zaklamp van je telefoon en kijkt opnieuw onder je bed.\n\nDaar ligt een leeg bierflesje.\n\nWaarom ligt er een bierflesje onder je bed?\nWaarom is het plakkerig?\nWaarom stel je deze vragen?\n\nJe pakt het flesje. Het voelt belangrijk. En vies."
+            );
+          }
+        });
+      }
+
+      buttons.push({ text: "Terug naar kamer", action: () => mainRoom("Je staat weer midden in je kamer. Je hand voelt minder schoon dan net."), color: "gray" });
+
+      setScene("Onder je bed", text, buttons);
+    }
+
+    /* BUREAU */
+    function showDesk() {
+      let text = "Je bureau is een rampgebied.\n\nEr ligt huiswerk, halflege verpakkingen, een pen zonder dop en bewijs dat je ooit motivatie had.";
+
+      const buttons = [];
+
+      if (!state.foundPaperclip) {
+        buttons.push({
+          text: "Pak paperclip",
+          action: () => {
+            state.foundPaperclip = true;
+            addItem("📎 paperclip");
+            mainRoom(
+              "Je pakt een paperclip.\n\nEindelijk een item dat eruitziet alsof het in een escape room hoort.\n\nJe voelt je meteen 12% slimmer."
+            );
+          }
+        });
+      }
+
+      if (!state.foundTestPaper) {
+        buttons.push({
+          text: "Pak oud toetsblaadje",
+          action: () => {
+            state.foundTestPaper = true;
+            addItem("📄 toetsblaadje met 3,2");
+            addShame(6);
+            mainRoom(
+              "Je pakt een oud toetsblaadje.\n\nCijfer: 3,2.\n\nJe moeder had misschien toch een punt.\n\nMaar goed, het papier is dun en schuift goed. Misschien heb je er eindelijk iets aan."
+            );
+          }
+        });
+      }
+
+      buttons.push({
+        text: "Doorzoek rommel",
+        action: () => {
+          if (!state.foundKeyCode) {
+            state.foundKeyCode = true;
+            mainRoom(
+              "Je doorzoekt de rommel op je bureau.\n\nTussen een lege chipszak en iets wat ooit een appel was, vind je een briefje:\n\n“Niet vergeten: code kast = 0420”\n\nDat deze code bestaat zegt eigenlijk genoeg."
+            );
+          } else {
+            mainRoom(
+              "Je doorzoekt je bureau nog eens.\n\nJe vindt niks nieuws.\nAlleen een kruimel die zo oud is dat hij waarschijnlijk stemrecht wil."
+            );
+          }
+        }
+      });
+
+      buttons.push({ text: "Terug naar kamer", action: () => mainRoom("Je laat het bureau achter. Het bureau lijkt opgelucht."), color: "gray" });
+
+      setScene("Je bureau", text, buttons);
+    }
+
+    /* KAST */
+    function showCloset() {
+      if (!state.closetOpen) {
+        setScene(
+          "Je kast",
+          "Je kast zit op slot met een cijferslot.\n\nVier cijfers.\n\nDe kast ruikt naar slechte keuzes en goedkope deodorant.",
+          [
+            { text: "Voer code 0420 in", action: openCloset },
+            { text: "Voer code 6969 in", action: wrongClosetCode },
+            { text: "Trek hard aan de kast", action: forceCloset },
+            { text: "Terug naar kamer", action: () => mainRoom("Je vertrouwt de kast niet. Terecht."), color: "gray" }
+          ]
+        );
+        return;
+      }
+
+      const buttons = [];
+
+      if (!state.foundDeo) {
+        buttons.push({
+          text: "Pak deodorant",
+          action: () => {
+            state.foundDeo = true;
+            addItem("🧴 deodorant");
+            mainRoom(
+              "Je pakt deodorant.\n\nMerk: iets met sport, terwijl jij net drie minuten buiten adem was van bukken.\n\nKan handig zijn. Of vooral misbruikt worden."
+            );
+          }
+        });
+      }
+
+      if (!state.foundCharger) {
+        buttons.push({
+          text: "Pak oplader",
+          action: () => {
+            state.foundCharger = true;
+            addItem("🔌 oplader");
+            mainRoom(
+              "Je vindt je oplader in de kast.\n\nJe moeder heeft hem blijkbaar afgepakt.\n\nJij noemt dit diefstal.\nZij noemt dit opvoeding."
+            );
+          }
+        });
+      }
+
+      if (!state.foundHoodie) {
+        buttons.push({
+          text: "Pak oude hoodie",
+          action: () => {
+            state.foundHoodie = true;
+            addItem("🧥 oude hoodie");
+            mainRoom(
+              "Je pakt een oude hoodie.\n\nHij ruikt naar rook, Febreze en jeugdige fouten.\n\nPerfect."
+            );
+          }
+        });
+      }
+
+      buttons.push({
+        text: "Eet oud koekje",
+        action: () => {
+          showGameOver(
+            "Je eet een oud koekje uit de kast.\n\nHet koekje smaakt naar karton, spijt en 2019.\n\nJe maag stuurt direct een klacht naar de klaagmuur.\n\nGAME OVER.\nReden: koekjesvertrouwen."
+          );
+        },
+        color: "red"
+      });
+
+      buttons.push({ text: "Terug naar kamer", action: () => mainRoom("Je sluit de kast. Hij kraakt alsof hij geheimen bewaart."), color: "gray" });
+
+      setScene(
+        "Je kast",
+        "De kast is open.\n\nBinnen ligt een verzameling spullen die samen precies uitleggen waarom je kamerarrest hebt.",
+        buttons
+      );
+    }
+
+    function openCloset() {
+      state.closetOpen = true;
+      mainRoom(
+        "Je voert 0420 in.\n\nKlik.\n\nDe kast gaat open.\n\nDat deze code werkte is eigenlijk het meest beschamende bewijsstuk tot nu toe."
+      );
+    }
+
+    function wrongClosetCode() {
+      addShame(5);
+      shakeGame();
+      mainRoom(
+        "Je voert 6969 in.\n\nHet slot doet niks.\n\nZelfs het cijferslot lijkt je te beoordelen."
+      );
+    }
+
+    function forceCloset() {
+      addShame(7);
+      mainRoom(
+        "Je trekt hard aan de kast.\n\nDe kast beweegt niet.\nJe schouder wel, maar op een manier die niet prettig voelt."
+      );
+    }
+
+    /* TELEFOON */
+    function showPhone() {
+      if (!hasItem("📱 telefoon bruikbaar")) {
+        addItem("📱 telefoon bruikbaar");
+      }
+
+      let text =
+        "Je pakt je telefoon.\n\nBatterij: " + state.battery + "%\nWifi: uit\nMobiele data: op\nSchermtijd: geblokkeerd door moeder\n\nApps die nog werken:\n- Camera\n- Notities\n- Zaklamp\n- Berichten\n- Voice memo";
+
+      const buttons = [
+        { text: "Open notities", action: phoneNotes },
+        { text: "Gebruik camera", action: phoneCamera },
+        { text: "Gebruik zaklamp", action: phoneFlashlight },
+        { text: "Stuur je vrienden een bericht", action: phoneMessages },
+        { text: "Voice memo luisteren", action: phoneVoiceMemo },
+      ];
+
+      if (hasItem("🔌 oplader") && !state.phoneCharged) {
+        buttons.push({ text: "Telefoon opladen", action: chargePhone, color: "green" });
+      }
+
+      buttons.push({ text: "Terug naar kamer", action: () => mainRoom("Je stopt je telefoon weg. De batterij zakt mentaal nog steeds."), color: "gray" });
+
+      setScene("Je telefoon", text, buttons);
+    }
+
+    function phoneNotes() {
+      if (!useBattery(1)) {
+        showGameOver("Je opent Notities.\n\nJe telefoon gaat uit.\n\nJe zit nu opgesloten zonder telefoon, zonder plan en met alleen jezelf.\n\nGAME OVER.\nReden: 3% batterij overschat.");
+        return;
+      }
+
+      state.foundKeyCode = true;
+
+      mainRoom(
+        "Je opent Notities.\n\nLaatste notitie:\n\n“Niet vergeten:\n- moeder hoort ALLES\n- sleutel zit vaak aan de andere kant\n- code kast = 0420\n- als ik ooit opgesloten word: kijk achter de foute poster”\n\nJe bent trots en bezorgd tegelijk."
+      );
+    }
+
+    function phoneCamera() {
+      if (!useBattery(1)) {
+        showGameOver("Je opent de camera.\n\nJe telefoon gaat uit.\n\nHet laatste wat je zag was je eigen gezicht.\n\nEerlijk: dat was al straf genoeg.\n\nGAME OVER.");
+        return;
+      }
+
+      state.sawDoorKey = true;
+
+      mainRoom(
+        "Je gebruikt de selfiecamera eerst per ongeluk.\n\nJe ziet jezelf.\nJe besluit dat ontsnappen inderdaad nodig is.\n\nDaarna schuif je de telefoon half onder de deur en gebruikt de camera.\n\nJe ziet de sleutel aan de andere kant in het slot zitten.\n\nKlassieke escape-room situatie.\nAlleen dan met meer schaamte."
+      );
+    }
+
+    function phoneFlashlight() {
+      if (!useBattery(1)) {
+        showGameOver("Je zet de zaklamp aan.\n\nJe telefoon gaat meteen uit.\n\nJe kamer wordt donker.\nJij wordt stil.\n\nGAME OVER.\nReden: batterijmanagement van een baksteen.");
+        return;
+      }
+
+      if (!state.foundBottle) {
+        state.foundBottle = true;
+        addItem("🍺 leeg bierflesje");
+
+        mainRoom(
+          "Je gebruikt de zaklamp.\n\nOnder je bed zie je iets glimmen.\n\nEen leeg bierflesje.\n\nJe pakt het.\nHet flesje plakt een beetje.\n\nJe besluit geen vervolgonderzoek te doen."
+        );
+      } else {
+        mainRoom(
+          "Je gebruikt de zaklamp opnieuw.\n\nJe vindt niks behalve stof, kruimels en iets wat beweegt.\n\nJe zet de zaklamp snel weer uit."
+        );
+      }
+    }
+
+    function phoneMessages() {
+      if (!useBattery(1)) {
+        showGameOver("Je probeert je vrienden te appen.\n\nTelefoon leeg.\n\nNiemand weet dat je vastzit.\nWaarschijnlijk missen ze je ook nog niet.\n\nGAME OVER.");
+        return;
+      }
+
+      mainRoom(
+        "Je probeert je vrienden te appen:\n\n“bro ik zit opgesloten help”\n\nBericht niet verzonden.\nGeen internet.\n\nJe voelt je ineens middeleeuws."
+      );
+    }
+
+    function phoneVoiceMemo() {
+      if (!state.phoneCharged) {
+        mainRoom(
+          "Je probeert Voice memo te openen.\n\nJe telefoon zegt: batterij te laag.\n\nZelfs je telefoon heeft geen zin in je stem."
+        );
+        return;
+      }
+
+      state.foundPosterHint = true;
+
+      mainRoom(
+        "Je speelt een voice memo af van jezelf van gisteren.\n\nJe hoort:\n\n“Bro, als ik ooit opgesloten word: kijk achter die foute poster. En raak de voorkant niet aan. Serieus.”\n\nJe bent jezelf dankbaar.\nEn een beetje bang."
+      );
+    }
+
+    function chargePhone() {
+      state.phoneCharged = true;
+      state.battery = 12;
+      mainRoom(
+        "Je plugt je telefoon in.\n\nBatterij: 12%.\n\nJe telefoon voelt zich herboren.\nJij nog steeds niet."
+      );
+    }
+
+    /* POSTER */
+    function showPoster() {
+      let text =
+        "Aan de muur hangt een oude Playboy-achtige poster.\n\nDe poster probeert stoer te zijn, maar het gezicht is volledig onherkenbaar door een verdachte uitgeharde substantie.\n\nDe poster kraakt een beetje in de wind.\nEr is geen wind.\n\nDit is geen goed teken.";
+
+      setScene(
+        "De foute poster",
+        text,
+        [
+          { text: "Poster voorzichtig optillen", action: liftPoster },
+          { text: "De substantie inspecteren", action: inspectPosterGunk },
+          { text: "Poster aanraken", action: touchPoster },
+          { text: "Te lang kijken", action: stareAtPoster, color: "red" },
+          { text: "Terug naar kamer", action: () => mainRoom("Je loopt weg van de poster. De poster blijft hangen. Helaas."), color: "gray" }
+        ]
+      );
+    }
+
+    function liftPoster() {
+      if (!state.foundPosterHint && !state.phoneCharged) {
+        addShame(4);
+        mainRoom(
+          "Je probeert de poster op te tillen.\n\nHij zit vast.\nNiet met tape.\n\nMet iets anders.\n\nJe besluit dat je misschien eerst een hint nodig hebt, of handschoenen, of therapie."
+        );
+        return;
+      }
+
+      if (!state.foundWindowKey) {
+        state.foundWindowKey = true;
+        addItem("🗝️ klein sleuteltje");
+        mainRoom(
+          "Je tilt de poster voorzichtig op.\n\nHet maakt een geluid dat geen enkel stuk papier ooit zou mogen maken.\n\nAchter de poster zit een klein luikje.\nIn het luikje ligt een klein sleuteltje en een briefje:\n\n“Voor noodgevallen of extreem domme acties.”\n\nJe pakt het sleuteltje.\nDe poster heeft zichtbaar geleden."
+        );
+      } else {
+        mainRoom(
+          "Je kijkt nog eens achter de poster.\n\nNiks nieuws.\nAlleen een geur die zich aan je geheugen vastklampt."
+        );
+      }
+    }
+
+    function inspectPosterGunk() {
+      addShame(10);
+
+      if (!hasItem("🧪 verdachte korst")) {
+        addItem("🧪 verdachte korst");
+      }
+
+      mainRoom(
+        "Je inspecteert de uitgeharde substantie.\n\nConclusie:\n- onbekend\n- historisch\n- waarschijnlijk strafbaar in meerdere provincies\n\nJe schraapt een klein stukje los.\n\nJe hebt nu: verdachte korst.\n\nWaarom neem je dit mee?\nOmdat dit een escape room is. Niet omdat je gezond bent."
+      );
+    }
+
+    function touchPoster() {
+      addShame(12);
+      mainRoom(
+        "Je raakt de poster aan.\n\nKRRRK.\n\nDat hoort een poster niet te doen.\n\nJe vinger blijft heel even plakken.\nJe ziel ook."
+      );
+    }
+
+    function stareAtPoster() {
+      showGameOver(
+        "Je blijft veel te lang naar de poster kijken.\n\nDe deur zwaait open.\n\nMoeder: “WAT BEN JIJ AAN HET DOEN?”\n\nJe probeert uit te leggen dat het voor een escape room was.\n\nZe gelooft je niet.\nTerecht.\n\nGAME OVER.\nReden: betrapt tijdens posteronderzoek."
+      );
+    }
+
+    /* WASMAND */
+    function showLaundry() {
+      setScene(
+        "De wasmand",
+        "De wasmand staat in de hoek.\n\nHij is niet vol.\nHij is boos.\n\nEr steekt iets uit dat ooit wit was.",
+        [
+          {
+            text: "Doorzoek wasmand",
+            action: () => {
+              if (!hasItem("🧺 wasmandriem")) {
+                addItem("🧺 wasmandriem");
+                addShame(5);
+                mainRoom(
+                  "Je doorzoekt de wasmand.\n\nJe vindt een riem van de wasmand.\nWaarom heeft de wasmand een riem?\nGeen idee.\n\nJe pakt hem toch.\n\nJe handen voelen nu alsof ze later excuses nodig hebben."
+                );
+              } else {
+                mainRoom(
+                  "Je doorzoekt de wasmand opnieuw.\n\nDe wasmand wint."
+                );
+              }
+            }
+          },
+          {
+            text: "Verstop je in de wasmand",
+            action: () => {
+              showGameOver(
+                "Je klimt in de wasmand.\n\nNa 12 seconden komt je moeder binnen.\nZe ziet een verdachte bult wasgoed met schoenen eraan.\n\nMoeder: “Serieus?”\n\nGAME OVER.\nReden: wasmand-ninja mislukt."
+              );
+            },
+            color: "red"
+          },
+          { text: "Terug naar kamer", action: () => mainRoom("Je laat de wasmand met rust. Soms is vluchten verstandig."), color: "gray" }
+        ]
+      );
+    }
+
+    /* RAAM */
+    function showWindow() {
+      const buttons = [];
+
+      if (!state.windowUnlocked) {
+        buttons.push({
+          text: "Probeer raam open te maken",
+          action: () => {
+            mainRoom(
+              "Je probeert het raam open te maken.\n\nHet zit op slot.\n\nBuiten zie je vrijheid.\nVrijheid ziet jou niet terug."
+            );
+          }
+        });
+
+        if (hasItem("🗝️ klein sleuteltje")) {
+          buttons.push({
+            text: "Gebruik klein sleuteltje",
+            action: () => {
+              state.windowUnlocked = true;
+              mainRoom(
+                "Je gebruikt het kleine sleuteltje op het raam.\n\nKlik.\n\nHet raam gaat open.\n\nJe kijkt naar beneden.\nEerste verdieping.\n\nJe benen stemmen tegen."
+              );
+            },
+            color: "green"
+          });
+        }
+      } else {
+        buttons.push({
+          text: "Klim uit het raam",
+          action: climbWindow,
+          color: "red"
+        });
+
+        buttons.push({
+          text: "Maak twijfelachtig touw",
+          action: makeRope
+        });
+      }
+
+      buttons.push({ text: "Terug naar kamer", action: () => mainRoom("Je doet een stap weg van het raam. Hoogte is ineens heel echt."), color: "gray" });
+
+      setScene(
+        "Het raam",
+        "Het raam kijkt uit op de straat.\n\nVrijheid is dichtbij.\nOok de stoep.\nDie is iets té dichtbij als je valt.",
+        buttons
+      );
+    }
+
+    function makeRope() {
+      if (!hasItem("🧥 oude hoodie") || !hasItem("🧺 wasmandriem") || !hasItem("🔌 oplader")) {
+        mainRoom(
+          "Je wil een ontsnappingstouw maken.\n\nJe hebt daarvoor iets nodig dat lang is, iets dat kan scheuren en iets waar je later spijt van krijgt.\n\nBijvoorbeeld:\n- oude hoodie\n- wasmandriem\n- oplader\n\nJe mist nog wat spullen."
+        );
+        return;
+      }
+
+      if (!hasItem("🪢 twijfelachtig touw")) {
+        addItem("🪢 twijfelachtig touw");
+      }
+
+      mainRoom(
+        "Je knoopt je oude hoodie, wasmandriem en oplader aan elkaar.\n\nHet resultaat is technisch gezien een touw.\nJuridisch gezien waarschijnlijk een waarschuwing.\n\nJe hebt nu een twijfelachtig touw."
+      );
+    }
+
+    function climbWindow() {
+      if (!hasItem("🪢 twijfelachtig touw")) {
+        showGameOver(
+          "Je klimt uit het raam zonder touw.\n\nHalverwege ontwikkel je ineens gezond verstand.\n\nJe probeert terug te klimmen, glijdt uit en rolt je kamer weer in als een mislukt pakketje.\n\nGAME OVER.\nReden: zwaartekracht."
+        );
+        return;
+      }
+
+      if (!state.motherDistracted) {
+        showGameOver(
+          "Je klimt uit het raam met je twijfelachtige touw.\n\nHalverwege hoor je beneden:\n\nMoeder: “WAAR BEN JIJ MEE BEZIG?”\n\nJe schrikt, raakt verstrikt in je eigen hoodie en bungelt daar als een waslijn met problemen.\n\nGAME OVER.\nTip: misschien eerst moeder afleiden."
+        );
+        return;
+      }
+
+      showGameOver(
+        "Je klimt uit het raam.\n\nHet touw houdt.\nMin of meer.\n\nBeneden staat moeder alweer.\n\nHoe?\nGeen idee. Moeders kunnen teleporteren als je iets doms doet.\n\nGAME OVER.\nTip: de voordeurroute is misschien minder beschamend."
+      );
+    }
+
+    /* DEUR */
+    function showDoor() {
+      const buttons = [
+        {
+          text: "Aan de deur luisteren",
+          action: () => {
+            mainRoom(
+              "Je legt je oor tegen de deur.\n\nJe hoort je moeder in de gang mompelen:\n\n“Hij blijft daar tot hij normaal doet.”\n\nJe kansen dalen."
+            );
+          }
+        },
+        {
+          text: "Sleutelgat bekijken",
+          action: () => {
+            state.sawDoorKey = true;
+            mainRoom(
+              "Je kijkt door het sleutelgat.\n\nJe ziet dat de sleutel aan de andere kant in het slot zit.\n\nKlassiek.\n\nJe hebt iets duns nodig om hem eruit te duwen, en iets plats om hem op te vangen."
+            );
+          }
+        },
+        {
+          text: "Roepen dat je spijt hebt",
+          action: () => {
+            addShame(4);
+            mainRoom(
+              "Je roept: “IK HEB SPIJT!”\n\nMoeder roept terug: “VAN WAT PRECIES?”\n\nJe bevriest.\n\nJe had niet verwacht dat er een vervolgvraag kwam."
+            );
+          }
+        },
+        {
+          text: "Deur forceren",
+          action: () => {
+            showGameOver(
+              "Je probeert de deur in te trappen.\n\nJe teen verliest.\nDe deur wint.\n\nMoeder doet open, kijkt naar je voet en zegt:\n“Mooi. Dan blijf je zitten.”\n\nGAME OVER.\nReden: deur sterker dan ego."
+            );
+          },
+          color: "red"
+        }
+      ];
+
+      if (state.sawDoorKey && hasItem("📎 paperclip") && hasItem("📄 toetsblaadje met 3,2") && !state.gotRoomKey) {
+        buttons.push({
+          text: "Gebruik paperclip + toetsblaadje",
+          action: getRoomKey,
+          color: "green"
+        });
+      }
+
+      if (state.gotRoomKey) {
+        buttons.push({
+          text: "Open de deur",
+          action: openDoor,
+          color: "green"
+        });
+      }
+
+      buttons.push({ text: "Terug naar kamer", action: () => mainRoom("Je stapt weg van de deur. De deur doet alsof hij beter is dan jij."), color: "gray" });
+
+      setScene(
+        "De deur",
+        "De deur zit op slot.\n\nAan de andere kant zit vrijheid.\nEn je moeder.\nDus vooral gevaar.",
+        buttons
+      );
+    }
+
+    function getRoomKey() {
+      state.gotRoomKey = true;
+      addItem("🔑 kamersleutel");
+
+      mainRoom(
+        "Je schuift het toetsblaadje onder de deur.\n\nJe priegelt met de paperclip in het slot.\n\nTik.\n\nDe sleutel valt op het toetsblaadje.\n\nJe trekt het blaadje terug.\n\nJe hebt de sleutel.\n\nVoor het eerst vandaag voel je je slim.\nRustig blijven, dat gevoel is tijdelijk."
+      );
+    }
+
+    function openDoor() {
+      setScene(
+        "De gang",
+        "Je steekt de sleutel in het slot.\n\nKlik.\n\nDe deur gaat open.\n\nJe zet één voet in de gang.\n\nDaar staat je moeder.\nArmen over elkaar.\nBlik op standje eindbaas.\n\nMoeder: “En waar dacht jij heen te gaan?”",
+        [
+          { text: "Sorry zeggen", action: sorryMother },
+          { text: "Rennen", action: runPastMother, color: "red" },
+          { text: "De waarheid vertellen", action: tellTruth, color: "red" },
+          { text: "Afleiding gebruiken", action: distractMother, color: "green" },
+          { text: "Terug je kamer in sluipen", action: () => mainRoom("Je doet langzaam de deur weer dicht.\n\nMoeder: “Ik zag dat.”\n\nJe doet alsof je niks hoorde.") }
+        ]
+      );
+    }
+
+    function sorryMother() {
+      showGameOver(
+        "Je zegt sorry.\n\nMoeder: “Mooi. Dan kun je nu je kamer opruimen.”\n\nJe kijkt naar je kamer.\n\nDat is geen kamer.\nDat is een meerjarenproject.\n\nGAME OVER.\nReden: sorry zeggen werkte te goed."
+      );
+    }
+
+    function runPastMother() {
+      showGameOver(
+        "Je probeert langs je moeder te rennen.\n\nJe vergeet één ding:\nmoeders hebben reflexen van een eindbaas als je iets doms doet.\n\nZe pakt je bij je hoodie.\n\nGAME OVER.\nReden: moeder had betere stats."
+      );
+    }
+
+    function tellTruth() {
+      showGameOver(
+        "Je zegt eerlijk:\n\n“Ik wilde naar de coffeeshop om dit avontuur met mijn vrienden te bespreken.”\n\nMoeder kijkt je aan.\n\nStilte.\n\nNog meer stilte.\n\nGAME OVER.\nReden: eerlijkheid was in dit geval niet je beste wapen."
+      );
+    }
+
+    function distractMother() {
+      if (!hasItem("🍺 leeg bierflesje") || !hasItem("🧦 uitgeharde sok")) {
+        showGameOver(
+          "Je probeert moeder af te leiden.\n\nJe hebt alleen je persoonlijkheid.\n\nDat is niet genoeg.\n\nMoeder pakt je bij je capuchon en zet je terug in je kamer.\n\nGAME OVER.\nTip: je hebt iets nodig dat geluid maakt en iets dat niemand ooit op de vloer wil tegenkomen."
+        );
+        return;
+      }
+
+      state.motherDistracted = true;
+
+      if (!state.sockTrapReady) {
+        state.sockTrapReady = true;
+      }
+
+      setScene(
+        "Gang",
+        "Je gooit het lege bierflesje de gang in.\n\nKLANG.\n\nMoeder kijkt automatisch om.\n\nOp exact dat moment stapt ze op de uitgeharde sok.\n\nDe sok beweegt niet.\nDe vloer wel.\nMoeder glijdt dramatisch tegen de wasmand aan.\n\nZe is niet gewond.\nWel zwaar beledigd.\n\nJij doet een dab.\nNiemand vroeg daarom.\n\nDe trap naar beneden is vrij.",
+        [
+          { text: "Ren naar beneden", action: goDownstairs, color: "green" },
+          { text: "Nog een dab doen", action: extraDab, color: "red" }
+        ]
+      );
+    }
+
+    function extraDab() {
+      showGameOver(
+        "Je doet nog een dab.\n\nTe lang.\nVeel te lang.\n\nMoeder herstelt, ziet het, en haar teleurstelling krijgt fysieke vorm.\n\nGAME OVER.\nReden: tweede dab was overmoed."
+      );
+    }
+
+    /* BENEDEN */
+    function goDownstairs() {
+      state.downstairs = true;
+
+      setScene(
+        "Beneden",
+        "Je sluipt naar beneden.\n\nDe voordeur is binnen handbereik.\n\nMaar natuurlijk zit hij op het nachtslot.\n\nNaast de deur hangt een sleutelbos aan een haakje.\nAan die haak hangt ook een belletje.\n\nWie hangt er nou een belletje aan een sleutelbos?\nJe moeder dus.",
+        [
+          { text: "Pak sleutelbos gewoon", action: grabKeysLoud, color: "red" },
+          { text: "Gebruik deodorant op belletje", action: silenceBell },
+          { text: "Zoek in jaszakken", action: searchCoats },
+          { text: "Ga terug naar boven", action: upstairsBadIdea, color: "gray" }
+        ]
+      );
+    }
+
+    function grabKeysLoud() {
+      showGameOver(
+        "Je pakt de sleutelbos.\n\nTINGELINGELING.\n\nHet belletje klinkt harder dan een kerkklok met ADHD.\n\nBoven hoor je moeder:\n\n“WAT WAS DAT?”\n\nGAME OVER.\nReden: sleutelbos had alarmfunctie."
+      );
+    }
+
+    function silenceBell() {
+      if (!hasItem("🧴 deodorant")) {
+        showGameOver(
+          "Je probeert het belletje stil te krijgen met je vingers.\n\nTING.\n\nNiet hard, maar hard genoeg.\n\nMoeder hoort het natuurlijk.\n\nGAME OVER.\nTip: misschien kun je iets gebruiken dat plakkerig, dempend of compleet onlogisch is."
+        );
+        return;
+      }
+
+      state.bellSilenced = true;
+      mainDownstairs(
+        "Je spuit deodorant op het belletje.\n\nWaarom dit werkt weet niemand.\n\nHet belletje ruikt nu naar paniek en middelbare schoolkleedkamer, maar maakt geen geluid meer."
+      );
+    }
+
+    function searchCoats() {
+      if (!state.bellSilenced) {
+        showGameOver(
+          "Je doorzoekt de jaszakken.\n\nJe vindt:\n- een oud bonnetje\n- een muntje van 20 cent\n- een zakdoek met geschiedenis\n\nDan stoot je tegen het belletje.\n\nTING.\n\nMoeder hoort het.\n\nGAME OVER."
+        );
+        return;
+      }
+
+      if (!state.gotHouseKey) {
+        state.gotHouseKey = true;
+        addItem("🏠 huissleutel");
+        mainDownstairs(
+          "Je doorzoekt de jaszakken terwijl het belletje stil is.\n\nIn de jas van je moeder vind je de huissleutel.\n\nOok een boodschappenlijstje waar op staat:\n“praat met hem over keuzes.”\n\nDaar heb je nu even geen tijd voor."
+        );
+      } else {
+        mainDownstairs(
+          "Je doorzoekt de jaszakken opnieuw.\n\nNiks nieuws.\nAlleen meer bewijs dat volwassenen veel bonnetjes bewaren."
+        );
+      }
+    }
+
+    function upstairsBadIdea() {
+      showGameOver(
+        "Je gaat terug naar boven.\n\nWaarom?\nGeen idee.\n\nMoeder is inmiddels weer opgestaan en staat bovenaan de trap.\n\nMoeder: “En jij dacht slim bezig te zijn?”\n\nGAME OVER.\nReden: teruglopen in een escape room."
+      );
+    }
+
+    function mainDownstairs(text) {
+      const buttons = [
+        { text: "Pak sleutelbos gewoon", action: grabKeysLoud, color: "red" },
+        { text: "Gebruik deodorant op belletje", action: silenceBell },
+        { text: "Zoek in jaszakken", action: searchCoats },
+      ];
+
+      if (state.gotHouseKey) {
+        buttons.push({ text: "Open voordeur", action: finalEscape, color: "green" });
+      }
+
+      buttons.push({ text: "Ga terug naar boven", action: upstairsBadIdea, color: "gray" });
+
+      setScene("Beneden", text + "\n\nDe voordeur wacht. Verdacht stil.", buttons);
+    }
+
+    function finalEscape() {
+      setScene(
+        "Vrijheid",
+        "Je steekt de huissleutel in het slot.\n\nKlik.\n\nDe voordeur gaat open.\n\nBuitenlucht.\nVrijheid.\nEen vuilcontainer die ook niet helemaal fris is, maar toch: vrijheid.\n\nJe doet nog één dab.\nWederom onnodig.\n\nJe loopt naar de dichtstbijzijnde coffeeshop.\n\nDaar zitten je vrienden al.\n\nJe vertelt je hele avontuur:\n- kamerarrest\n- uitgeharde sok\n- foute poster\n- sleuteltruc\n- moeder-eindbaas\n- deodorant op een belletje\n\nZe luisteren drie seconden.\n\nDan zegt iemand:\n“Bro, je had ook gewoon sorry kunnen zeggen.”\n\nEINDE.\n\nJe bent ontsnapt.\nJe waardigheid niet.",
+        [
+          { text: "Opnieuw spelen", action: resetGame, color: "green" },
+          { text: "Terug naar home", action: () => window.location.href = "index.html", color: "gray" }
+        ]
+      );
+    }
+
+    /* GAME OVER / RESET */
+    function showGameOver(customText) {
+      shakeGame();
+
+      const text = customText || gameOverTexts[Math.floor(Math.random() * gameOverTexts.length)];
+
+      setScene(
+        "Game over",
+        text,
+        [
+          { text: "Opnieuw proberen", action: resetGame, color: "red" },
+          { text: "Terug naar home", action: () => window.location.href = "index.html", color: "gray" }
+        ]
+      );
+    }
+
+    function resetGame() {
+      const newAttempt = state.attempt + 1;
+      localStorage.setItem("escapeAttempts", newAttempt);
+
+      state = {
+        location: "intro",
+        inventory: [],
+        shame: 0,
+        battery: 3,
+        attempt: newAttempt,
+
+        foundSock: false,
+        foundBottle: false,
+        foundPaperclip: false,
+        foundTestPaper: false,
+        foundDeo: false,
+        foundCharger: false,
+        foundHoodie: false,
+        foundKeyCode: false,
+        closetOpen: false,
+        phoneCharged: false,
+        foundPosterHint: false,
+        foundWindowKey: false,
+        windowUnlocked: false,
+        sawDoorKey: false,
+        gotRoomKey: false,
+        sockTrapReady: false,
+        motherDistracted: false,
+        downstairs: false,
+        bellSilenced: false,
+        gotHouseKey: false
+      };
+
+      startGame();
+    }
+
+    startGame();
+
+    /* TIJD VERSPILD */
+    const wasteTimeText = document.getElementById("waste-time");
+
+    let totalWastedSeconds = Number(localStorage.getItem("totalWastedSeconds")) || 0;
+
+    function showWasteTimer() {
+      const hours = Math.floor(totalWastedSeconds / 3600);
+      const minutes = Math.floor((totalWastedSeconds % 3600) / 60);
+      const seconds = totalWastedSeconds % 60;
+
+      if (hours > 0) {
+        wasteTimeText.textContent =
+          hours + " uur, " + minutes + " minuten en " + seconds + " seconden";
+      } else if (minutes > 0) {
+        wasteTimeText.textContent =
+          minutes + " minuten en " + seconds + " seconden";
+      } else {
+        wasteTimeText.textContent = seconds + " seconden";
+      }
+    }
+
+    showWasteTimer();
+
+    setInterval(() => {
+      totalWastedSeconds++;
+      localStorage.setItem("totalWastedSeconds", totalWastedSeconds);
+      showWasteTimer();
+    }, 1000);
+  </script>
+
+</body>
+</html>
